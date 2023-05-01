@@ -1,0 +1,212 @@
+[gd_scene load_steps=3 format=3 uid="uid://bm4eoyek1aop5"]
+
+[ext_resource type="PackedScene" uid="uid://um3lq6nvfete" path="res://scenes/menus/labeled_slider_with_edit.tscn" id="1_75b0a"]
+[ext_resource type="Script" path="res://apis/kobold_config.gd" id="1_cvdwa"]
+
+[node name="KoboldConfig" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_cvdwa")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
+layout_mode = 2
+text = "   URL:"
+
+[node name="UrlEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "http://127.0.0.1:5000/api"
+
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MaxContext" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Max Context Length"
+value = 2048.0
+range_max = 2048.0
+
+[node name="MaxResponse" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Output Length"
+value = 80.0
+range_max = 512.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="RepPen" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Repetition Penalty"
+value = 1.1
+range_min = 1.0
+range_max = 3.0
+step = 0.01
+
+[node name="RepPenRange" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Repetition Penalty Range"
+value = 1024.0
+range_max = 2048.0
+
+[node name="RepPenSlope" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Repetition Penalty Slope"
+value = 0.9
+range_max = 2.0
+step = 0.01
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Temperature" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Temperature"
+value = 0.7
+range_max = 2.0
+step = 0.01
+
+[node name="TopK" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Top K"
+value = 0.0
+
+[node name="TopP" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Top P"
+value = 0.95
+range_max = 1.0
+step = 0.01
+
+[node name="TopA" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Top A"
+value = 0.0
+range_max = 1.0
+step = 0.01
+
+[node name="TFS" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3" instance=ExtResource("1_75b0a")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Tail Free Sampling"
+value = 1.0
+range_max = 1.0
+step = 0.01
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Multigeneration" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Multigeneration"
+
+[node name="KeepExamples" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Keep Examples"
+
+[node name="SingleLine" type="CheckBox" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Single Line Mode
+"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/GridContainer"]
+layout_mode = 2
+text = "World Info"
+vertical_alignment = 1
+
+[node name="Memory" type="TextEdit" parent="MarginContainer/VBoxContainer/ScrollContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+scroll_fit_content_height = true
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/GridContainer"]
+layout_mode = 2
+text = "Author's Notes"
+vertical_alignment = 1
+
+[node name="AuthorsNote" type="TextEdit" parent="MarginContainer/VBoxContainer/ScrollContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+scroll_fit_content_height = true
+
+[connection signal="text_changed" from="MarginContainer/VBoxContainer/HBoxContainer2/HBoxContainer/UrlEdit" to="." method="_on_url_edit_text_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/MaxContext" to="." method="_on_max_context_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/MaxResponse" to="." method="_on_max_response_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2/RepPen" to="." method="_on_rep_pen_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2/RepPenRange" to="." method="_on_rep_pen_range_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2/RepPenSlope" to="." method="_on_rep_pen_slope_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3/Temperature" to="." method="_on_temperature_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3/TopK" to="." method="_on_top_k_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3/TopP" to="." method="_on_top_p_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3/TopA" to="." method="_on_top_a_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer3/TFS" to="." method="_on_tfs_changed"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/Multigeneration" to="." method="_on_multigeneration_toggled"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/KeepExamples" to="." method="_on_keep_examples_toggled"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer2/SingleLine" to="." method="_on_single_line_toggled"]

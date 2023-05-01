@@ -1,0 +1,240 @@
+[gd_scene load_steps=3 format=3 uid="uid://blhxx346ycdg1"]
+
+[ext_resource type="Script" path="res://scenes/menus/chara_sheet.gd" id="1_elng3"]
+[ext_resource type="PackedScene" uid="uid://p23kqdtjdu3y" path="res://scenes/menus/dialog_with_edit.tscn" id="2_hgvnj"]
+
+[node name="CharaSheet" type="MarginContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_elng3")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Avatar" type="TextureRect" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+expand_mode = 3
+stretch_mode = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CharaName" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Main" type="Label" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/CharaName"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Name"
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="EditName" type="Button" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/CharaName"]
+unique_name_in_owner = true
+layout_mode = 2
+text = " ✍️ "
+
+[node name="Create" type="Button" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+tooltip_text = "Create a new character"
+text = "Create"
+
+[node name="Save" type="Button" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+tooltip_text = "Save this character"
+text = "Save"
+
+[node name="Avatar" type="Button" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+tooltip_text = "Select a new avatar for this character"
+text = "Avatar"
+
+[node name="Import" type="Button" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+tooltip_text = "Import a character from disk"
+text = "Import"
+
+[node name="Export" type="Button" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+tooltip_text = "Export this character"
+text = "Export"
+flat = true
+
+[node name="Delete" type="Button" parent="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+tooltip_text = "Delete this character"
+text = "Delete"
+
+[node name="MarginContainer2" type="MarginContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+text = "Description:"
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/VBoxContainer/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Description" type="TextEdit" parent="ScrollContainer/VBoxContainer/MarginContainer2/VBoxContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="MarginContainer3" type="MarginContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="ScrollContainer/VBoxContainer/MarginContainer3/VBoxContainer"]
+layout_mode = 2
+text = "First Message:"
+
+[node name="MarginContainer2" type="MarginContainer" parent="ScrollContainer/VBoxContainer/MarginContainer3/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FirstMessage" type="TextEdit" parent="ScrollContainer/VBoxContainer/MarginContainer3/VBoxContainer/MarginContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="MarginContainer5" type="MarginContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer5"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="ScrollContainer/VBoxContainer/MarginContainer5/VBoxContainer"]
+layout_mode = 2
+text = "Personality:"
+
+[node name="MarginContainer2" type="MarginContainer" parent="ScrollContainer/VBoxContainer/MarginContainer5/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Personality" type="TextEdit" parent="ScrollContainer/VBoxContainer/MarginContainer5/VBoxContainer/MarginContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="MarginContainer4" type="MarginContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer4"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="ScrollContainer/VBoxContainer/MarginContainer4/VBoxContainer"]
+layout_mode = 2
+text = "Example Messages:"
+
+[node name="MarginContainer2" type="MarginContainer" parent="ScrollContainer/VBoxContainer/MarginContainer4/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ExampleMessages" type="TextEdit" parent="ScrollContainer/VBoxContainer/MarginContainer4/VBoxContainer/MarginContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="MarginContainer6" type="MarginContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/MarginContainer6"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="ScrollContainer/VBoxContainer/MarginContainer6/VBoxContainer"]
+layout_mode = 2
+text = "Scenario"
+
+[node name="MarginContainer2" type="MarginContainer" parent="ScrollContainer/VBoxContainer/MarginContainer6/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Scenario" type="TextEdit" parent="ScrollContainer/VBoxContainer/MarginContainer6/VBoxContainer/MarginContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="CharaSelectionDialog" type="FileDialog" parent="."]
+title = "Open a File"
+size = Vector2i(600, 500)
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png ; PNG Images", "*.json ; JSON Files")
+
+[node name="ImageSelectionDialog" type="FileDialog" parent="."]
+title = "Open a File"
+size = Vector2i(600, 500)
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png, *.jpg, *.jpeg ; Supported Image Files")
+
+[node name="NewCharaName" parent="." instance=ExtResource("2_hgvnj")]
+visible = false
+label_text = "New character name"
+confirm_text = "Create"
+
+[node name="AcceptDialog" type="AcceptDialog" parent="."]
+size = Vector2i(500, 100)
+dialog_autowrap = true
+
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/CharaName/EditName" to="." method="_on_edit_name_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/Create" to="." method="_on_create_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/Save" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/Avatar" to="." method="_on_avatar_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/Import" to="." method="_on_import_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/Export" to="." method="_on_export_pressed"]
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/Delete" to="." method="_on_delete_pressed"]
+[connection signal="text_changed" from="ScrollContainer/VBoxContainer/MarginContainer2/VBoxContainer/MarginContainer/Description" to="." method="_on_description_text_changed"]
+[connection signal="text_changed" from="ScrollContainer/VBoxContainer/MarginContainer3/VBoxContainer/MarginContainer2/FirstMessage" to="." method="_on_first_message_text_changed"]
+[connection signal="text_changed" from="ScrollContainer/VBoxContainer/MarginContainer5/VBoxContainer/MarginContainer2/Personality" to="." method="_on_personality_text_changed"]
+[connection signal="text_changed" from="ScrollContainer/VBoxContainer/MarginContainer4/VBoxContainer/MarginContainer2/ExampleMessages" to="." method="_on_example_messages_text_changed"]
+[connection signal="text_changed" from="ScrollContainer/VBoxContainer/MarginContainer6/VBoxContainer/MarginContainer2/Scenario" to="." method="_on_scenario_text_changed"]
+[connection signal="file_selected" from="CharaSelectionDialog" to="." method="_on_file_dialog_file_selected"]
+[connection signal="file_selected" from="ImageSelectionDialog" to="." method="_on_image_selection_dialog_file_selected"]
+[connection signal="confirmed" from="NewCharaName" to="." method="_on_new_chara_name_confirmed"]

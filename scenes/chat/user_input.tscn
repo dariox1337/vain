@@ -1,0 +1,53 @@
+[gd_scene load_steps=6 format=3 uid="uid://oll1lrft6e72"]
+
+[ext_resource type="Script" path="res://scenes/chat/user_input.gd" id="1_2trne"]
+[ext_resource type="Texture2D" uid="uid://buvc0lo64dsvy" path="res://img/icons/bars-solid.svg" id="2_dn35q"]
+[ext_resource type="Script" path="res://scenes/chat/input_box.gd" id="2_j614f"]
+[ext_resource type="Texture2D" uid="uid://c6yme4fb0xhas" path="res://img/icons/hourglass-solid.svg" id="4_5cop6"]
+[ext_resource type="Texture2D" uid="uid://o16yk7gl3251" path="res://img/icons/play-solid.svg" id="5_h4h8i"]
+
+[node name="UserInput" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2trne")
+
+[node name="MenuButton" type="MenuButton" parent="."]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+icon = ExtResource("2_dn35q")
+icon_alignment = 1
+expand_icon = true
+
+[node name="InputBox" type="TextEdit" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Type your message..."
+wrap_mode = 1
+scroll_fit_content_height = true
+caret_blink = true
+script = ExtResource("2_j614f")
+
+[node name="WaitIndicator" type="TextureRect" parent="."]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+texture = ExtResource("4_5cop6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PauseButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+toggle_mode = true
+icon = ExtResource("5_h4h8i")
+flat = true
+expand_icon = true
+
+[connection signal="text_changed" from="InputBox" to="InputBox" method="_on_text_changed"]
+[connection signal="pressed" from="PauseButton" to="." method="_on_play_button_pressed"]

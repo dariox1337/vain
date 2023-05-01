@@ -1,0 +1,9 @@
+How to call Python code from Godot:
+
+1. Import whatever module you need (for instance, your own module) in websocket_server.py
+2. In GDScript make calls using "await PythonBridge.eval("<python code>")"
+3. The result is sent back as a single string. It's the job of the caller to parse it.
+
+Keep in mind, it's a high-latency link. It's useful for non-critical functions 
+like tokenizer, png metadata reader, making requests to AI, etc. But critical 
+functionality should be implemented in Godot.

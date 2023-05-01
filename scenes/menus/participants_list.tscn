@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://bsc2r47v5rfwe"]
+
+[ext_resource type="Script" path="res://scenes/menus/participants_list.gd" id="1_7hb6g"]
+[ext_resource type="PackedScene" uid="uid://b6i17qctuohba" path="res://scenes/menus/participant.tscn" id="2_yqwx2"]
+
+[node name="ParitcipantsList" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_7hb6g")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Participant" parent="VBox" instance=ExtResource("2_yqwx2")]
+visible = false
+layout_mode = 2

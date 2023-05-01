@@ -1,0 +1,135 @@
+[gd_scene load_steps=5 format=3 uid="uid://dglvkm50q1r85"]
+
+[ext_resource type="Script" path="res://scenes/chat/message_box.gd" id="1_l6xec"]
+[ext_resource type="Texture2D" uid="uid://dci5n0otm8mni" path="res://img/circle.png" id="2_t84y1"]
+[ext_resource type="Texture2D" uid="uid://cuxw86xcyo052" path="res://img/ai.png" id="3_wsysq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_exu5y"]
+bg_color = Color(0.0784314, 0.0784314, 0.0784314, 0.784314)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.576471, 0.576471, 0.576471, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_bottom = 5.0
+
+[node name="MessageBox" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_exu5y")
+script = ExtResource("1_l6xec")
+
+[node name="Foreground" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SelectionCheckBox" type="CheckBox" parent="Foreground"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+flat = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Foreground"]
+custom_minimum_size = Vector2(70, 100)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Foreground/VBoxContainer"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Foreground/VBoxContainer/MarginContainer"]
+clip_children = 1
+layout_mode = 2
+texture = ExtResource("2_t84y1")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="Avatar" type="TextureRect" parent="Foreground/VBoxContainer/MarginContainer/TextureRect"]
+unique_name_in_owner = true
+layout_mode = 2
+offset_right = 60.0
+offset_bottom = 60.0
+texture = ExtResource("3_wsysq")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="BoxContainer" type="BoxContainer" parent="Foreground/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PrevButton" type="Button" parent="Foreground/VBoxContainer/BoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 0
+text = "<"
+flat = true
+
+[node name="Body" type="VBoxContainer" parent="Foreground"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Title" type="HBoxContainer" parent="Foreground/Body"]
+layout_mode = 2
+alignment = 1
+
+[node name="UserName" type="Label" parent="Foreground/Body/Title"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+vertical_alignment = 1
+text_overrun_behavior = 3
+
+[node name="SiblingsCounter" type="Label" parent="Foreground/Body/Title"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "-/-"
+
+[node name="MessageBody" type="RichTextLabel" parent="Foreground/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+fit_content = true
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Foreground"]
+custom_minimum_size = Vector2(70, 100)
+layout_mode = 2
+
+[node name="Edit" type="Button" parent="Foreground/VBoxContainer2"]
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 30
+text = " ✍️ "
+flat = true
+
+[node name="BoxContainer" type="BoxContainer" parent="Foreground/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NextButton" type="Button" parent="Foreground/VBoxContainer2/BoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 0
+text = ">"
+flat = true
+
+[connection signal="pressed" from="Foreground/SelectionCheckBox" to="." method="_on_selection_check_box_pressed"]
+[connection signal="pressed" from="Foreground/VBoxContainer/BoxContainer/PrevButton" to="." method="_on_prev_button_pressed"]
+[connection signal="pressed" from="Foreground/VBoxContainer2/Edit" to="." method="_on_edit_pressed"]
+[connection signal="pressed" from="Foreground/VBoxContainer2/BoxContainer/NextButton" to="." method="_on_next_button_pressed"]

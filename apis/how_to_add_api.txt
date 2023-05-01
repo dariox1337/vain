@@ -1,0 +1,10 @@
+1. Create a script that extends APIConfig class.
+	- Don't forget to add super._init()
+	- Make sure to run chat_tree.substitution() to replace tags like {{char}}, {{user}}, etc
+	- Handle <START> in a way specific to the api.
+	- Keep in mind that `chat.participant` can be null if the participant was removed from chat,
+	  only their names and messages remain. It's up to the api how to treat such participants.
+2. Create a preset class (extends Resource) that has all settings specific to the api
+3. Create a configuration scene (e.g. kobold_config.tscn and kobold_config.gd)
+	- use prompt_config.tscn
+4. Add the api name in api_list.gd

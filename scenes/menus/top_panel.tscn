@@ -1,0 +1,55 @@
+[gd_scene load_steps=2 format=3 uid="uid://ds0daf608ggwj"]
+
+[ext_resource type="Script" path="res://scenes/menus/top_panel.gd" id="1_mc2vq"]
+
+[node name="TopPanel" type="Control"]
+custom_minimum_size = Vector2(500, 30)
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_right = 250.0
+offset_bottom = 30.0
+grow_horizontal = 2
+script = ExtResource("1_mc2vq")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_right = 250.0
+offset_bottom = 30.0
+grow_horizontal = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="APIConfig" type="Button" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "API"
+
+[node name="BackgroundConfig" type="Button" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "BG"
+
+[node name="UIConfig" type="Button" parent="PanelContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+text = "UI"
+
+[node name="ChatConfig" type="Button" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CHAT"
+
+[connection signal="pressed" from="PanelContainer/HBoxContainer/APIConfig" to="." method="_on_api_menu_pressed"]
+[connection signal="pressed" from="PanelContainer/HBoxContainer/BackgroundConfig" to="." method="_on_background_menu_pressed"]
+[connection signal="pressed" from="PanelContainer/HBoxContainer/UIConfig" to="." method="_on_ui_pressed"]
+[connection signal="pressed" from="PanelContainer/HBoxContainer/ChatConfig" to="." method="_on_character_pressed"]

@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://ctpffi8s7necy"]
+
+[ext_resource type="Script" path="res://scenes/game_scene/game_scene.gd" id="1_x4re4"]
+[ext_resource type="PackedScene" path="res://scenes/game_scene/background.tscn" id="2_p2cmd"]
+[ext_resource type="Theme" uid="uid://bswnm6dsdarau" path="res://themes/def_theme.tres" id="3_6f4m2"]
+[ext_resource type="PackedScene" uid="uid://ds0daf608ggwj" path="res://scenes/menus/top_panel.tscn" id="6_65fwp"]
+
+[node name="GameScene" type="Node"]
+script = ExtResource("1_x4re4")
+
+[node name="Background" parent="." instance=ExtResource("2_p2cmd")]
+
+[node name="GUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_6f4m2")
+
+[node name="TopPanel" parent="GUI" instance=ExtResource("6_65fwp")]
+layout_mode = 1
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="GUI"]
+copy_mode = 2
+
+[connection signal="menu_button_pressed" from="GUI/TopPanel" to="." method="_on_top_panel_menu_button_pressed"]

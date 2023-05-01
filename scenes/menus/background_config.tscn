@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3 uid="uid://b4bthq5t6gxjd"]
+
+[ext_resource type="Script" path="res://scenes/menus/background_config.gd" id="1_r6j8r"]
+[ext_resource type="Shader" path="res://shaders/blur.gdshader" id="2_lkfpp"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_x7a8q"]
+shader = ExtResource("2_lkfpp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bgp1p"]
+shader = ExtResource("2_lkfpp")
+
+[node name="BackgroundConfig" type="PanelContainer"]
+material = SubResource("ShaderMaterial_x7a8q")
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.05
+anchor_right = 0.9
+anchor_bottom = 0.9
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_r6j8r")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+material = SubResource("ShaderMaterial_bgp1p")
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="ItemList" type="ItemList" parent="PanelContainer/MarginContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 0
+max_columns = 6
+fixed_column_width = 200
+icon_mode = 0
+
+[connection signal="item_clicked" from="PanelContainer/MarginContainer/ScrollContainer/ItemList" to="." method="_on_item_list_item_clicked"]

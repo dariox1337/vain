@@ -1,0 +1,56 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6i17qctuohba"]
+
+[ext_resource type="Script" path="res://scenes/menus/participant.gd" id="1_gl0ql"]
+
+[node name="Participant" type="MarginContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 26.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_bottom = 0
+script = ExtResource("1_gl0ql")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="Control" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="HBoxContainer/Control"]
+layout_mode = 2
+offset_right = 1270.0
+offset_bottom = 26.0
+flat = true
+
+[node name="CharaName" type="Label" parent="HBoxContainer/Control"]
+unique_name_in_owner = true
+layout_mode = 2
+offset_left = 4.0
+offset_right = 1082.0
+offset_bottom = 26.0
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "Participant"
+vertical_alignment = 1
+text_overrun_behavior = 3
+max_lines_visible = 1
+
+[node name="APIOptions" type="OptionButton" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+
+[node name="PresetOptions" type="OptionButton" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+selected = 0
+
+[connection signal="pressed" from="HBoxContainer/Control/Button" to="." method="_on_button_pressed"]
+[connection signal="item_selected" from="HBoxContainer/APIOptions" to="." method="_on_api_options_item_selected"]
+[connection signal="item_selected" from="HBoxContainer/PresetOptions" to="." method="_on_preset_options_item_selected"]

@@ -1,0 +1,125 @@
+[gd_scene load_steps=7 format=3 uid="uid://bfmn7ql2mnnsa"]
+
+[ext_resource type="Script" path="res://scenes/menus/api_config.gd" id="1_lwbxm"]
+[ext_resource type="Shader" path="res://shaders/blur.gdshader" id="1_soj0q"]
+[ext_resource type="PackedScene" uid="uid://p23kqdtjdu3y" path="res://scenes/menus/dialog_with_edit.tscn" id="2_4x1pw"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dy3ni"]
+shader = ExtResource("1_soj0q")
+
+[sub_resource type="LabelSettings" id="LabelSettings_umput"]
+font_size = 20
+
+[sub_resource type="LabelSettings" id="LabelSettings_poiym"]
+font_size = 20
+
+[node name="ApiConfig" type="PanelContainer"]
+material = SubResource("ShaderMaterial_dy3ni")
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.05
+anchor_right = 0.9
+anchor_bottom = 0.9
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lwbxm")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="TopRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Menus" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="API" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/API"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "API  "
+label_settings = SubResource("LabelSettings_umput")
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="APIMenu" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/API"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Preset" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/Preset"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Preset  "
+label_settings = SubResource("LabelSettings_poiym")
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="PresetMenu" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/Preset"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Control" type="VSeparator" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Del" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Del Preset
+"
+
+[node name="New" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "New Preset"
+
+[node name="Save" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save"
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ConfigContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NewPresetPopup" parent="." instance=ExtResource("2_4x1pw")]
+unique_name_in_owner = true
+visible = false
+label_text = "Enter new preset name:"
+confirm_text = "Create"
+
+[node name="AcceptDialog" type="AcceptDialog" parent="."]
+unresizable = true
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+unresizable = true
+
+[connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/API/APIMenu" to="." method="_on_api_menu_item_selected"]
+[connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/Preset/PresetMenu" to="." method="_on_preset_menu_item_selected"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Del" to="." method="_on_del_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/New" to="." method="_on_new_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Save" to="." method="_on_save_pressed"]
+[connection signal="confirmed" from="NewPresetPopup" to="." method="_on_new_preset_popup_confirmed"]
+[connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_confirmation_dialog_confirmed"]

@@ -1,0 +1,198 @@
+[gd_scene load_steps=4 format=3 uid="uid://dy546twstvjh6"]
+
+[ext_resource type="Script" path="res://apis/openai_config.gd" id="1_bjkfa"]
+[ext_resource type="PackedScene" uid="uid://um3lq6nvfete" path="res://scenes/menus/labeled_slider_with_edit.tscn" id="3_6kbly"]
+[ext_resource type="PackedScene" uid="uid://c0p1ls1w7jfy8" path="res://apis/prompt_config.tscn" id="3_864js"]
+
+[node name="OpenAIConfig" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_bjkfa")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="ModelConfMargin" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ModelConf" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ModelConfMargin"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer"]
+layout_mode = 2
+text = "Model: "
+vertical_alignment = 1
+
+[node name="ModelMenu" type="OptionButton" parent="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Examples" type="CheckBox" parent="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Always keep example messages"
+
+[node name="ApiConfMargin" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ApiConf" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ApiConfMargin"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "API Key: "
+vertical_alignment = 1
+
+[node name="ApiKeyEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+placeholder_text = "sk-xxxxxxxxxx"
+max_length = 48
+
+[node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer2/HBoxContainer2"]
+layout_mode = 2
+text = "Reverse Proxy URL: "
+vertical_alignment = 1
+
+[node name="AddressEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer2/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Post proxy address here"
+placeholder_text = "https://api.openai.com/v1"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TokensConfMargin" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TokensConf" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TokensConfMargin"]
+layout_mode = 2
+
+[node name="ContextLength" parent="MarginContainer/VBoxContainer/TokensConfMargin/TokensConf" instance=ExtResource("3_6kbly")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Context Length in Tokens"
+range_max = 8191.0
+
+[node name="ResponseLength" parent="MarginContainer/VBoxContainer/TokensConfMargin/TokensConf" instance=ExtResource("3_6kbly")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Max Response Length in Tokens"
+range_max = 1024.0
+
+[node name="TempConfMargin" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TempConfMargin"]
+layout_mode = 2
+
+[node name="Temperature" parent="MarginContainer/VBoxContainer/TempConfMargin/HBoxContainer" instance=ExtResource("3_6kbly")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Temperature"
+range_max = 2.0
+step = 0.01
+
+[node name="FrequencyPenalty" parent="MarginContainer/VBoxContainer/TempConfMargin/HBoxContainer" instance=ExtResource("3_6kbly")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Frequency Penalty"
+range_min = -2.0
+range_max = 2.0
+step = 0.01
+
+[node name="PresencePenalty" parent="MarginContainer/VBoxContainer/TempConfMargin/HBoxContainer" instance=ExtResource("3_6kbly")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Presence Penalty"
+range_min = -2.0
+range_max = 2.0
+step = 0.01
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PromptConfig" parent="MarginContainer/VBoxContainer" instance=ExtResource("3_864js")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/MarginContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 3
+
+[node name="Position" type="Label" parent="MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/GridContainer"]
+layout_mode = 2
+text = "Position      "
+
+[node name="Role" type="Label" parent="MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/GridContainer"]
+layout_mode = 2
+text = "Role "
+
+[node name="Prompt" type="Label" parent="MarginContainer/VBoxContainer/MarginContainer/ScrollContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Prompt"
+
+[connection signal="item_selected" from="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer/ModelMenu" to="." method="_on_model_menu_item_selected"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer/Examples" to="." method="_on_examples_toggled"]
+[connection signal="text_changed" from="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer/HBoxContainer/ApiKeyEdit" to="." method="_on_api_key_edit_text_changed"]
+[connection signal="text_changed" from="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer2/HBoxContainer2/AddressEdit" to="." method="_on_address_edit_text_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/TokensConfMargin/TokensConf/ContextLength" to="." method="_on_context_length_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/TokensConfMargin/TokensConf/ResponseLength" to="." method="_on_response_length_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/TempConfMargin/HBoxContainer/Temperature" to="." method="_on_temperature_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/TempConfMargin/HBoxContainer/FrequencyPenalty" to="." method="_on_frequency_penalty_changed"]
+[connection signal="changed" from="MarginContainer/VBoxContainer/TempConfMargin/HBoxContainer/PresencePenalty" to="." method="_on_presence_penalty_changed"]

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlhvftk8ws1s7"]
+
+[ext_resource type="Script" path="res://scenes/chat/user_message_bus.gd" id="1_lswiy"]
+
+[node name="UserMessageBus" type="Node"]
+script = ExtResource("1_lswiy")
