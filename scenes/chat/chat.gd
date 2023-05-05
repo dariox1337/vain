@@ -306,3 +306,11 @@ func _on_new_user_message_received(message: String) -> void:
 										"message": message,
 										"parent": current_node})
 				break
+
+
+func _on_confirmation_dialog_confirmed():
+	$%UserInput.pause(false)
+	if not remote_api_active and current_node != null and participants != []:
+		#current_participant = get_next_participant(current_participant)
+		current_participant.gen_message(current_node, chat_tree, _on_message_received)
+	current_state = State.WAITING_FOR_API_RESPONSE

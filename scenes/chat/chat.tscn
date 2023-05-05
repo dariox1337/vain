@@ -67,13 +67,13 @@ text = "Cancel"
 
 [node name="APINodes" type="Node" parent="."]
 
-[node name="WarningDialog" type="AcceptDialog" parent="."]
-title = "Warning"
-size = Vector2i(400, 100)
-dialog_autowrap = true
+[node name="WarningDialog" type="ConfirmationDialog" parent="."]
+ok_button_text = "Retry"
+cancel_button_text = "Pause"
 
 [connection signal="deletion_mode_activated" from="MarginContainer/Foreground/UserInput" to="." method="_on_user_input_deletion_mode_activated"]
 [connection signal="pause_button_pressed" from="MarginContainer/Foreground/UserInput" to="." method="_on_user_input_pause_button_pressed"]
 [connection signal="regeneration_requested" from="MarginContainer/Foreground/UserInput" to="." method="_on_user_input_regeneration_requested"]
 [connection signal="pressed" from="MarginContainer/Foreground/DeleteModeButtons/DeleteSelectedMessages" to="." method="_on_delete_selected_messages_pressed"]
 [connection signal="pressed" from="MarginContainer/Foreground/DeleteModeButtons/CancelDeletion" to="." method="_on_cancel_deletion_pressed"]
+[connection signal="confirmed" from="WarningDialog" to="." method="_on_confirmation_dialog_confirmed"]
