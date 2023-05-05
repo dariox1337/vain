@@ -65,6 +65,19 @@ func _on_new_preset_popup_confirmed(_new_text : String) -> void:
 	switch_preset()
 
 
+func _on_copy_pressed() -> void:
+	var new_name: String = apis.list[apis.last_used].last_used_preset
+	new_name = new_name + "_copy"
+	if new_name != apis.list[apis.last_used].last_used_preset:
+		apis.list[apis.last_used].new_preset(new_name)
+		apis.list[apis.last_used].copy_preset(apis.list[apis.last_used].last_used_preset, new_name)
+		apis.list[apis.last_used].last_used_preset = new_name
+		apis.save()
+		switch_preset()
+	else:
+		Logger.logg("Couldn't generate a new name for the preset copy.", Logger.ERROR)
+
+
 func _on_del_pressed() -> void:
 	var preset: String = preset_menu.get_item_text(preset_menu.selected)
 	if preset == "Default":
@@ -94,3 +107,6 @@ func _on_preset_menu_item_selected(index) -> void:
 	var key: String = preset_menu.get_item_metadata(index)
 	apis.list[apis.last_used].last_used_preset = key
 	switch_preset()
+
+
+

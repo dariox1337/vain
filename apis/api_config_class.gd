@@ -27,6 +27,24 @@ func adopt_children() -> Array[Node]:
 func new_preset(_key: String):
 	pass
 
+## This func must copy "old preset" settings to "new preset"
+func copy_preset(old_key: String, new_key: String) -> void:
+	if not presets.has(old_key) or not presets.has(new_key):
+		Logger.logg("Couldn't find old or new preset for copying.", Logger.ERROR)
+		return
+	var properties := get_preset_properties()
+	for prop in properties:
+		var old_prop = presets[old_key].get(prop)
+		presets[new_key].set(prop, old_prop)
+
+
+## Return an array of properties specific to the api because
+## Godot's get_property_list() returns many Godot-class-specific properties,
+## which we don't care about
+func get_preset_properties() -> Array[String]:
+	return []
+
+
 ## Unused for now
 func connect_to_api(_preset: String) -> void:
 	pass

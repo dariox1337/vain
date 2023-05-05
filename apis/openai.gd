@@ -32,6 +32,12 @@ func new_preset(key : String) -> OpenAIConfigPreset:
 	return new_p
 
 
+func get_preset_properties() -> Array[String]:
+	return ["oai_key", "url", "model", "context_length", "response_length",
+			"temperature", "frequency_penalty", "presence_penalty", 
+			"keep_examples", "positional_prompts"]
+
+
 func connect_to_api(preset: String) -> void:
 	var headers := PackedStringArray(["Authorization: Bearer " + presets[preset].oai_key])
 	var error := _http_request.request(

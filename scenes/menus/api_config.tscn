@@ -86,6 +86,12 @@ size_flags_horizontal = 3
 text = "Del Preset
 "
 
+[node name="Copy" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Copy Preset
+"
+
 [node name="New" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -119,6 +125,7 @@ unresizable = true
 [connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/API/APIMenu" to="." method="_on_api_menu_item_selected"]
 [connection signal="item_selected" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Menus/Preset/PresetMenu" to="." method="_on_preset_menu_item_selected"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Del" to="." method="_on_del_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Copy" to="." method="_on_copy_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/New" to="." method="_on_new_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Save" to="." method="_on_save_pressed"]
 [connection signal="confirmed" from="NewPresetPopup" to="." method="_on_new_preset_popup_confirmed"]

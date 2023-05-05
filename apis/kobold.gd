@@ -40,6 +40,14 @@ func new_preset(key : String) -> KoboldConfigPreset:
 	return new_p
 
 
+func get_preset_properties() -> Array[String]:
+	return ["url", "max_context_length", "max_length", "rep_pen",
+			"rep_pen_range", "rep_pen_slope", "temperature", "tfs",
+			"top_a", "top_k", "top_p", "multigeneration", "keep_examples",
+			"single_line", "use_story", "use_world_info", "sampler_order",
+			"kobold_memory", "authors_note"]
+
+
 func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 				preset_key := "Default") -> APIResult:
 	var preset : KoboldConfigPreset = presets[preset_key]
