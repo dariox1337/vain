@@ -9,7 +9,7 @@ var apis : APIs = load("user://apis.tres")
 var loaded_config : Node
 
 ## Create popup menu items for apis
-func _ready():
+func _ready() -> void:
 	## Create menu items for all apis
 	var idx := 0
 	for key in apis.list.keys():
@@ -96,13 +96,13 @@ func _on_del_pressed() -> void:
 		$ConfirmationDialog.dialog_text = "Do you really want to delete \"" + preset + "\" preset?"
 
 
-func _on_rename_pressed():
+func _on_rename_pressed() -> void:
 	rename_preset_popup.edit_text = apis.list[apis.last_used].last_used_preset
 	rename_preset_popup.popup_centered()
 	rename_preset_popup.show()
 
 
-func _on_rename_preset_popup_confirmed(new_preset_name):
+func _on_rename_preset_popup_confirmed(new_preset_name: String) -> void:
 	var api: APIConfig = apis.list[apis.last_used]
 	api.presets[new_preset_name] = api.presets[api.last_used_preset]
 	api.presets.erase(api.last_used_preset)

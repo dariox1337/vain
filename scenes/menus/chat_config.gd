@@ -10,12 +10,12 @@ var chats_path := "user://chats/"
 var selected_chat : ChatTree
 
 
-func _ready():
+func _ready() -> void:
 	scan_chats_dir()
 	scan_chara_dir()
 
 
-func _exit_tree():
+func _exit_tree() -> void:
 	# Save settings when closing window
 	selected_chat.scenario = $%Scenario.text
 	selected_chat.save()
@@ -61,17 +61,17 @@ func scan_chara_dir() -> void:
 			await get_tree().process_frame
 
 
-func _on_chara_list_item_clicked(index, _at_position, mouse_button_index):
+func _on_chara_list_item_clicked(index: int, _at_position, mouse_button_index: int) -> void:
 	if mouse_button_index == 1:
 		var chara = chara_list.get_item_metadata(index)
 		sheet.character = chara
 
 
-func _on_chara_sheet_new_char():
+func _on_chara_sheet_new_char() -> void:
 	scan_chara_dir()
 
 
-func _on_new_chat_pressed():
+func _on_new_chat_pressed() -> void:
 	selected_chat.save()
 	selected_chat = ChatTree.new()
 	selected_chat.scenario_changed.connect(_on_scenario_changed)
@@ -85,28 +85,28 @@ func _on_new_chat_pressed():
 	_on_load_chat_pressed()
 
 
-func _on_chats_list_item_activated(_index):
+func _on_chats_list_item_activated(_index: int) -> void:
 	_on_load_chat_pressed()
 
 
-func _on_load_chat_pressed():
+func _on_load_chat_pressed() -> void:
 	settings.chat_tree = selected_chat
 
 
-func _on_rename_chat_pressed():
+func _on_rename_chat_pressed() -> void:
 	$%RenameChatDialog.edit_text = selected_chat.name
 	$%RenameChatDialog.popup_centered()
 	$%RenameChatDialog.show()
 
 
-func _on_rename_chat_dialog_confirmed(new_text):
-	selected_chat.rename_and_save($%RenameChatDialog.edit_text)
+func _on_rename_chat_dialog_confirmed(new_text: String) -> void:
+	selected_chat.rename_and_save(new_text)
 	$%RenameChatDialog.edit_text = ""
 	$%RenameChatDialog.hide()
 	scan_chats_dir()
 
 
-func _on_delete_chat_pressed():
+func _on_delete_chat_pressed() -> void:
 	if chats_list.item_count == 1:
 		Logger.logg("Can't delete the last chat.", Logger.WARN)
 		return
@@ -130,7 +130,7 @@ func _on_delete_chat_pressed():
 		OS.move_to_trash(file)
 
 
-func _on_chats_list_item_selected(index):
+func _on_chats_list_item_selected(index: int) -> void:
 	# To edit currently loaded chat, we need to find a reference to it
 	# because loading from file will create a separate copy.
 	var file_name: String = chats_list.get_item_metadata(index)
@@ -156,7 +156,7 @@ func _on_chats_list_item_selected(index):
 			sheet.character = selected_chat.participants[0].chara
 
 
-func _on_add_participant_pressed():
+func _on_add_participant_pressed() -> void:
 	if sheet.character:
 		var new_part = selected_chat.participant_joined(sheet.character)
 		if new_part:
@@ -170,21 +170,21 @@ func _on_add_participant_pressed():
 						Logger.DEBUG)
 
 
-func _on_remove_participant_pressed():
+func _on_remove_participant_pressed() -> void:
 	var removed : ChatParticipant = participants_list.remove_selected()
 	if removed:
 		selected_chat.participant_left(removed)
 		selected_chat.save()
 
 
-func _on_participants_list_selected(participant):
+func _on_participants_list_selected(participant) -> void:
 	sheet.character = participant.chara
 
 
-func _on_scenario_changed():
+func _on_scenario_changed() -> void:
 	if selected_chat.scenario != $%Scenario.text:
 		$%Scenario.text = selected_chat.scenario
 
 
-func _on_scenario_text_changed():
+func _on_scenario_text_changed() -> void:
 	selected_chat.scenario = $%Scenario.text
