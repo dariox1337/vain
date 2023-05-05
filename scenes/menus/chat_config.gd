@@ -93,6 +93,19 @@ func _on_load_chat_pressed():
 	settings.chat_tree = selected_chat
 
 
+func _on_rename_chat_pressed():
+	$%RenameChatDialog.edit_text = selected_chat.name
+	$%RenameChatDialog.popup_centered()
+	$%RenameChatDialog.show()
+
+
+func _on_rename_chat_dialog_confirmed(new_text):
+	selected_chat.rename_and_save($%RenameChatDialog.edit_text)
+	$%RenameChatDialog.edit_text = ""
+	$%RenameChatDialog.hide()
+	scan_chats_dir()
+
+
 func _on_delete_chat_pressed():
 	if chats_list.item_count == 1:
 		Logger.logg("Can't delete the last chat.", Logger.WARN)

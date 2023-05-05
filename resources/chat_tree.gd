@@ -82,6 +82,18 @@ func get_user_substitution() -> String:
 		return "{{user}}"
 
 
+func rename_and_save(new_name: String) -> void:
+	var dir = DirAccess.open("user://")
+	if not dir.dir_exists("user://chats/"):
+		var err = dir.make_dir("user://chats")
+		if err != OK:
+			Logger.logg("Code: %s. Could not create user://chats dir." % [err], Logger.ERROR)
+			return	
+	var old_file_path := "user://chats/%s_%s.json" % [uid, name]
+	dir.remove(old_file_path)
+	name = new_name
+	save()
+
 func save() -> void:
 	var dir = DirAccess.open("user://")
 	if not dir.dir_exists("user://chats/"):

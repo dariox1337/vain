@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://d3cjfs505l21f"]
+[gd_scene load_steps=7 format=3 uid="uid://d3cjfs505l21f"]
 
 [ext_resource type="Script" path="res://scenes/menus/chat_config.gd" id="1_2s64x"]
 [ext_resource type="Shader" path="res://shaders/blur.gdshader" id="1_gciqx"]
 [ext_resource type="PackedScene" uid="uid://blhxx346ycdg1" path="res://scenes/menus/chara_sheet.tscn" id="2_16ud8"]
 [ext_resource type="PackedScene" uid="uid://bsc2r47v5rfwe" path="res://scenes/menus/participants_list.tscn" id="2_hsu6y"]
+[ext_resource type="PackedScene" uid="uid://p23kqdtjdu3y" path="res://scenes/menus/dialog_with_edit.tscn" id="5_r1tkw"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sivvc"]
 shader = ExtResource("1_gciqx")
@@ -63,11 +64,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Load"
 
-[node name="Rename" type="Button" parent="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/VBoxContainer"]
+[node name="RenameChat" type="Button" parent="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Rename"
-flat = true
 
 [node name="DeleteChat" type="Button" parent="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/VBoxContainer"]
 layout_mode = 2
@@ -176,8 +176,14 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="RenameChatDialog" parent="." instance=ExtResource("5_r1tkw")]
+unique_name_in_owner = true
+visible = false
+label_text = "Rename chat"
+
 [connection signal="pressed" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/VBoxContainer/NewChat" to="PanelContainer/ChatConfig" method="_on_new_chat_pressed"]
 [connection signal="pressed" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/VBoxContainer/LoadChat" to="PanelContainer/ChatConfig" method="_on_load_chat_pressed"]
+[connection signal="pressed" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/VBoxContainer/RenameChat" to="PanelContainer/ChatConfig" method="_on_rename_chat_pressed"]
 [connection signal="pressed" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/VBoxContainer/DeleteChat" to="PanelContainer/ChatConfig" method="_on_delete_chat_pressed"]
 [connection signal="item_activated" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/ChatsList" to="PanelContainer/ChatConfig" method="_on_chats_list_item_activated"]
 [connection signal="item_selected" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer/MarginContainer2/VBoxContainer2/HBoxContainer2/ChatsList" to="PanelContainer/ChatConfig" method="_on_chats_list_item_selected"]
@@ -187,3 +193,4 @@ size_flags_vertical = 3
 [connection signal="pressed" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer2/MarginContainer/HBoxContainer/VBoxContainer2/HBoxContainer/VBoxContainer/RemoveParticipant" to="PanelContainer/ChatConfig" method="_on_remove_participant_pressed"]
 [connection signal="selected" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer2/MarginContainer/HBoxContainer/VBoxContainer2/HBoxContainer/ScrollContainer/ParticipantsList" to="PanelContainer/ChatConfig" method="_on_participants_list_selected"]
 [connection signal="new_char" from="PanelContainer/ChatConfig/HBoxContainer/VBoxContainer2/CharaSheet" to="PanelContainer/ChatConfig" method="_on_chara_sheet_new_char"]
+[connection signal="confirmed" from="RenameChatDialog" to="PanelContainer/ChatConfig" method="_on_rename_chat_dialog_confirmed"]
