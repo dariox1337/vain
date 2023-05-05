@@ -5,6 +5,7 @@ var apis : APIs = load("user://apis.tres")
 @onready var preset_menu := $%PresetMenu
 @onready var config_container := $%ConfigContainer
 @onready var new_preset_popup := $%NewPresetPopup
+@onready var rename_preset_popup := $%RenamePresetPopup
 var loaded_config : Node
 
 ## Create popup menu items for apis
@@ -90,6 +91,23 @@ func _on_del_pressed() -> void:
 		$ConfirmationDialog.dialog_text = "Do you really want to delete \"" + preset + "\" preset?"
 
 
+func _on_rename_pressed():
+	rename_preset_popup.edit_text = apis.list[apis.last_used].last_used_preset
+	rename_preset_popup.popup_centered()
+	rename_preset_popup.show()
+
+
+func _on_rename_preset_popup_confirmed(new_preset_name):
+	var api: APIConfig = apis.list[apis.last_used]
+	api.presets[new_preset_name] = api.presets[api.last_used_preset]
+	api.presets.erase(api.last_used_preset)
+	api.last_used_preset = new_preset_name
+	rename_preset_popup.edit_text = ""
+	rename_preset_popup.hide()
+	apis.save()
+	switch_preset()
+
+
 func _on_confirmation_dialog_confirmed() -> void:
 	var key: String = preset_menu.get_item_text(preset_menu.selected)
 	apis.list[apis.last_used].presets.erase(key)
@@ -107,6 +125,3 @@ func _on_preset_menu_item_selected(index) -> void:
 	var key: String = preset_menu.get_item_metadata(index)
 	apis.list[apis.last_used].last_used_preset = key
 	switch_preset()
-
-
-

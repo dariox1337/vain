@@ -83,19 +83,24 @@ size_flags_horizontal = 3
 [node name="Del" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Del Preset
+text = "Delete
 "
 
 [node name="Copy" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Copy Preset
+text = "Copy
 "
 
 [node name="New" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "New Preset"
+text = "New"
+
+[node name="Rename" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rename"
 
 [node name="Save" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons"]
 layout_mode = 2
@@ -116,6 +121,12 @@ visible = false
 label_text = "Enter new preset name:"
 confirm_text = "Create"
 
+[node name="RenamePresetPopup" parent="." instance=ExtResource("2_4x1pw")]
+unique_name_in_owner = true
+visible = false
+label_text = "Enter new name:"
+confirm_text = "Rename"
+
 [node name="AcceptDialog" type="AcceptDialog" parent="."]
 unresizable = true
 
@@ -127,6 +138,8 @@ unresizable = true
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Del" to="." method="_on_del_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Copy" to="." method="_on_copy_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/New" to="." method="_on_new_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Rename" to="." method="_on_rename_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TopRow/Buttons/Save" to="." method="_on_save_pressed"]
 [connection signal="confirmed" from="NewPresetPopup" to="." method="_on_new_preset_popup_confirmed"]
+[connection signal="confirmed" from="RenamePresetPopup" to="." method="_on_rename_preset_popup_confirmed"]
 [connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_confirmation_dialog_confirmed"]
