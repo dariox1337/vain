@@ -178,7 +178,7 @@ func _on_http_request_completed(result, response_code, _headers, body) -> void:
 		if response:
 			message = str(response_code) + " " + response
 		else:
-			message = response
+			message = str(response_code)
 	elif response.has("error"):
 		status = APIResult.ERROR
 		message = response["error"]
