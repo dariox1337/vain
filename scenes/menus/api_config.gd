@@ -67,16 +67,21 @@ func _on_new_preset_popup_confirmed(_new_text : String) -> void:
 
 
 func _on_copy_pressed() -> void:
-	var new_name: String = apis.list[apis.last_used].last_used_preset
-	new_name = new_name + "_copy"
-	if new_name != apis.list[apis.last_used].last_used_preset:
-		apis.list[apis.last_used].new_preset(new_name)
-		apis.list[apis.last_used].copy_preset(apis.list[apis.last_used].last_used_preset, new_name)
-		apis.list[apis.last_used].last_used_preset = new_name
-		apis.save()
-		switch_preset()
-	else:
-		Logger.logg("Couldn't generate a new name for the preset copy.", Logger.ERROR)
+	var api: APIConfig = apis.list[apis.last_used]
+	var new_name: String = api.last_used_preset
+	var ends_with := RegEx.create_from_string("(.*?)_\\d*$")
+	if ends_with.search(new_name):
+		new_name = ends_with.search(new_name).strings[1]
+	var counter = 0
+	while api.presets.has(new_name + "_" + str(counter)):
+		counter += 1
+	new_name = new_name + "_" + str(counter)
+	
+	api.new_preset(new_name)
+	api.copy_preset(api.last_used_preset, new_name)
+	api.last_used_preset = new_name
+	apis.save()
+	switch_preset()
 
 
 func _on_del_pressed() -> void:

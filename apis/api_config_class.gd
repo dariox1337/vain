@@ -35,7 +35,10 @@ func copy_preset(old_key: String, new_key: String) -> void:
 	var properties := get_preset_properties()
 	for prop in properties:
 		var old_prop = presets[old_key].get(prop)
-		presets[new_key].set(prop, old_prop)
+		if typeof(old_prop) == TYPE_DICTIONARY or typeof(old_prop) == TYPE_ARRAY:
+			presets[new_key].set(prop, old_prop.duplicate(true))
+		else:
+			presets[new_key].set(prop, old_prop)
 
 
 ## Return an array of properties specific to the api because
@@ -77,6 +80,7 @@ func parse_examples(examples: String, user_name: String, chara_name: String) -> 
 	if res.size() > 0 and res[-1][0] != "<START>":
 		res.append(["<START>"])
 	return res
+
 
 func http_request_error_message(result: int) -> String:
 	match result:
