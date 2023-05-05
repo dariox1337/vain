@@ -21,6 +21,8 @@ Character description:
 {{description}}"],
 	2 : ["Second", roles[4], ""],
 	3 : ["Third", roles[1], "Scenario: {{scenario}}"],
+	4 : ["Fourth", roles[0], ""],
+	5 : ["Fifth", roles[0], ""],
 	-11 : ["Last-10", roles[1], "[{{char}}'s presonality: {{personality}}]"],
 	-2 : ["Last-1", roles[0], ""],
 	-1 : ["Last", roles[0], "[System note: Write your reply only as {{char}}]"],
