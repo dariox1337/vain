@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://da7icoscydjok"]
+
+[ext_resource type="Script" path="res://scenes/menus/chat_map.gd" id="1_4jlrc"]
+[ext_resource type="Shader" path="res://shaders/blur.gdshader" id="1_76h1x"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_81p4w"]
+shader = ExtResource("1_76h1x")
+
+[node name="ChatMap" type="PanelContainer"]
+material = SubResource("ShaderMaterial_81p4w")
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.05
+anchor_right = 0.9
+anchor_bottom = 0.9
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4jlrc")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="Graph" type="GraphEdit" parent="PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+use_snap = false
+zoom_min = 0.1
+zoom_max = 2.0
+arrange_nodes_button_hidden = true
+
+[connection signal="node_selected" from="PanelContainer/Graph" to="." method="_on_graph_node_selected"]

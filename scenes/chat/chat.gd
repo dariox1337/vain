@@ -13,7 +13,8 @@ var current_participant : ChatParticipant
 var current_node: ChatTreeNode = null
 var message_queue := []
 enum State {PAUSE, UNPAUSE, WAITING_FOR_EDIT, WAITING_FOR_API_RESPONSE,
-			REBUILDING_MESSAGE_LOG, SETTING_UP_FIRST_MESSAGE, DELETING_MESSAGES}
+			REBUILDING_LOG_BACKWARDS, REBUILDING_LOG_FORWARD, SETTING_UP_FIRST_MESSAGE,
+			DELETING_MESSAGES}
 var current_state := State.PAUSE
 var waiting_for_edit_mode := false
 var remote_api_active := false
@@ -27,7 +28,7 @@ func _ready():
 		_on_participants_changed() # set up substitutions and apis used by participants
 		current_state = State.SETTING_UP_FIRST_MESSAGE
 	else:
-		current_state = State.REBUILDING_MESSAGE_LOG
+		current_state = State.REBUILDING_LOG_FORWARD
 
 
 func _process(_delta):
@@ -80,7 +81,7 @@ func _process(_delta):
 					chat_tree.save()
 					current_participant = get_next_participant(current_participant)
 					current_participant.gen_message(current_node, chat_tree, _on_message_received)
-		State.REBUILDING_MESSAGE_LOG:
+		State.REBUILDING_LOG_FORWARD:
 			_display_msg_box(current_node)
 			if current_node.get_child(0):
 				current_node = current_node.get_child(0)
@@ -89,6 +90,17 @@ func _process(_delta):
 				if current_node.participant:
 					current_participant = current_node.participant
 				current_state = State.PAUSE
+		State.REBUILDING_LOG_BACKWARDS:
+			_display_msg_box(current_node, true)
+			if current_node.get_parent():
+				current_node = current_node.get_parent()
+			else:
+				var msg_box = $%Messages.get_child(-1)
+				current_node = msg_box.chat_node
+				# remove last msg box because it'll be restored by the forward pass
+				$%Messages.remove_child(msg_box)
+				msg_box.queue_free()
+				current_state = State.REBUILDING_LOG_FORWARD
 		State.SETTING_UP_FIRST_MESSAGE:
 			var root_node : ChatTreeNode
 			for part in participants:
@@ -146,7 +158,7 @@ func _on_participants_changed() -> void:
 	# If root has no children, it means the chat hasn't started yet.
 	# Reset everything using the new list of participants.
 	# But don't run this code when rebuilding old message log
-	if current_state != State.REBUILDING_MESSAGE_LOG and\
+	if current_state != State.REBUILDING_LOG_FORWARD and\
 		(chat_tree.root == null or chat_tree.root.get_child(0) == null):
 		chat_tree.scenario = ""
 		chat_tree.root = null
@@ -188,6 +200,13 @@ func _on_message_received(part: ChatParticipant, result: APIResult, parent: Chat
 	message_queue.push_back({"participant": part, "message": result.message, "parent": parent})
 
 
+func _on_warning_dialog_confirmed():
+	$%UserInput.pause(false)
+	if not remote_api_active and current_node != null and participants != []:
+		current_participant.gen_message(current_node, chat_tree, _on_message_received)
+	current_state = State.WAITING_FOR_API_RESPONSE
+
+
 ## This functions generates a new ChatTreeNode given a chat participant and a message
 func new_message(part: ChatParticipant, message: String) -> ChatTreeNode:
 	# The reference to the last ChatTreeNode can be found inside the last msgbox
@@ -201,10 +220,12 @@ func new_message(part: ChatParticipant, message: String) -> ChatTreeNode:
 
 
 ## This function takes a ChatTreeNode and instantiates a message box, adding it to the hierarchy.
-func _display_msg_box(chat_node : ChatTreeNode) -> void:
+func _display_msg_box(chat_node : ChatTreeNode, on_top := false) -> void:
 	var spawned_message_box := MessageBox.instantiate()
 	spawned_message_box.set_message(chat_node)
 	$%Messages.add_child(spawned_message_box)
+	if on_top:
+		$%Messages.move_child(spawned_message_box, 0)
 	# message boxes can send signals about swipes and selections
 	spawned_message_box.branch_changed.connect(_on_branch_switched)
 	spawned_message_box.selected.connect(_on_msg_box_selected)
@@ -222,7 +243,7 @@ func _on_branch_switched(msg_box: PanelContainer) -> void:
 		children[idx].queue_free()
 	if msg_box.chat_node.get_child(0):
 		current_node = msg_box.chat_node.get_child(0)
-		current_state = State.REBUILDING_MESSAGE_LOG
+		current_state = State.REBUILDING_LOG_FORWARD
 	else:
 		current_node = msg_box.chat_node
 		if current_node.message == "...":
@@ -308,9 +329,18 @@ func _on_new_user_message_received(message: String) -> void:
 				break
 
 
-func _on_confirmation_dialog_confirmed():
-	$%UserInput.pause(false)
-	if not remote_api_active and current_node != null and participants != []:
-		#current_participant = get_next_participant(current_participant)
-		current_participant.gen_message(current_node, chat_tree, _on_message_received)
-	current_state = State.WAITING_FOR_API_RESPONSE
+func jump_to_message(node: ChatTreeNode) -> void:
+	var children := $%Messages.get_children()
+	var found : PanelContainer = null
+	for child in children:
+		if child.chat_node == node:
+			found = child
+			break
+	if found:
+		_on_branch_switched(found)
+	else:
+		for child in children:
+			$%Messages.remove_child(child)
+			child.queue_free()
+		current_node = node
+		current_state = State.REBUILDING_LOG_BACKWARDS

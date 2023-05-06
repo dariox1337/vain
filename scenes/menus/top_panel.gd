@@ -16,3 +16,7 @@ func _on_character_pressed():
 
 func _on_ui_pressed():
 	menu_button_pressed.emit("ui")
+
+
+func _on_map_pressed():
+	menu_button_pressed.emit("map")

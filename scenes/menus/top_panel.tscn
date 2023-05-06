@@ -44,6 +44,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "UI"
 
+[node name="Map" type="Button" parent="PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "MAP"
+
 [node name="ChatConfig" type="Button" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -52,4 +57,5 @@ text = "CHAT"
 [connection signal="pressed" from="PanelContainer/HBoxContainer/APIConfig" to="." method="_on_api_menu_pressed"]
 [connection signal="pressed" from="PanelContainer/HBoxContainer/BackgroundConfig" to="." method="_on_background_menu_pressed"]
 [connection signal="pressed" from="PanelContainer/HBoxContainer/UIConfig" to="." method="_on_ui_pressed"]
+[connection signal="pressed" from="PanelContainer/HBoxContainer/Map" to="." method="_on_map_pressed"]
 [connection signal="pressed" from="PanelContainer/HBoxContainer/ChatConfig" to="." method="_on_character_pressed"]

@@ -76,4 +76,4 @@ cancel_button_text = "Pause"
 [connection signal="regeneration_requested" from="MarginContainer/Foreground/UserInput" to="." method="_on_user_input_regeneration_requested"]
 [connection signal="pressed" from="MarginContainer/Foreground/DeleteModeButtons/DeleteSelectedMessages" to="." method="_on_delete_selected_messages_pressed"]
 [connection signal="pressed" from="MarginContainer/Foreground/DeleteModeButtons/CancelDeletion" to="." method="_on_cancel_deletion_pressed"]
-[connection signal="confirmed" from="WarningDialog" to="." method="_on_confirmation_dialog_confirmed"]
+[connection signal="confirmed" from="WarningDialog" to="." method="_on_warning_dialog_confirmed"]

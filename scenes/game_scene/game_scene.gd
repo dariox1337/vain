@@ -8,7 +8,9 @@ var chat_window : Node
 @onready var BackgroundConfig := load("res://scenes/menus/background_config.tscn")
 @onready var ApiConfig := load("res://scenes/menus/api_config.tscn")
 @onready var ChatConfig := load("res://scenes/menus/chat_config.tscn")
-@onready var config_windows := {"api": null, "background" : null, "ui": null, "chat": null}
+@onready var ChatMap := load("res://scenes/menus/chat_map.tscn")
+@onready var config_windows := {"api": null, "background" : null, "ui": null,
+								"map": null, "chat": null}
 
 func _ready() -> void:
 	DisplayServer.window_set_min_size(settings.min_size)
@@ -24,6 +26,8 @@ func _on_top_panel_menu_button_pressed(button : String) -> void:
 			_on_top_panel_menu_button_pressed_implementation("background", BackgroundConfig)
 		"ui":
 			pass
+		"map":
+			_on_top_panel_menu_button_pressed_implementation("map", ChatMap)
 		"chat":
 			_on_top_panel_menu_button_pressed_implementation("chat", ChatConfig)
 
@@ -42,6 +46,9 @@ func _on_top_panel_menu_button_pressed_implementation(key : String, scene : Pack
 		chat_window.current_state = chat_window.State.PAUSE
 		config_windows[key] = scene.instantiate()
 		config_windows[key].custom_minimum_size.x = settings.min_size.x
+		if key == "map":
+			config_windows[key].chat_tree = settings.chat_tree
+			config_windows[key].node_selected.connect(_on_chat_node_selected)
 		$GUI.add_child(config_windows[key])
 
 
@@ -69,3 +76,8 @@ func load_chat() -> void:
 	chat_window.custom_minimum_size.x = settings.min_size.x
 	$GUI.add_child(chat_window)
 	$GUI.move_child(chat_window, 0)
+
+
+func _on_chat_node_selected(node: ChatTreeNode) -> void:
+	if chat_window:
+		chat_window.jump_to_message(node)

@@ -92,6 +92,10 @@ func get_child(idx: int) -> ChatTreeNode:
 		return null
 
 
+func get_children() -> Array[ChatTreeNode]:
+	return _children
+
+
 func gen_new_sibling() -> ChatTreeNode:
 	if is_root():
 		return null
