@@ -33,7 +33,6 @@ the first instance of python.exe it finds on exit.
 `python ./pyscripts/websocket_server.py` so it remains open between test runs.
 9. Import a character card (png or json) in "CHAT" settings, add a character to your chat,
 and set their api.
-10. To send messages you typed, use Shift+Enter
 
 ## Supported APIs
 * Kobold

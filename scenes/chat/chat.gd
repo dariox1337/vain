@@ -248,7 +248,8 @@ func _on_branch_switched(msg_box: PanelContainer) -> void:
 		current_node = msg_box.chat_node
 		if current_node.message == "...":
 			current_participant = current_node.participant
-			current_participant.gen_message(current_node.get_parent(), chat_tree, _on_message_received)
+			current_participant.gen_message(current_node.get_parent(), chat_tree, 
+											_on_message_received)
 			current_state = State.WAITING_FOR_EDIT
 		else:
 			current_state = State.PAUSE
