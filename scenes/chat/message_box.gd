@@ -62,7 +62,8 @@ func _on_next_button_pressed() -> void:
 	chat_node = new_item
 	branch_changed.emit(self)
 	set_message(chat_node)
-	if chat_node.participant.api == "User":
+	# Enable edit mode when User swipes their own message.
+	if chat_node.message == "..." and chat_node.participant.api == "User":
 		_on_edit_pressed()
 
 ## Handler for "swipe left" signal
@@ -104,7 +105,9 @@ func _on_edit_pressed() -> void:
 		new_node.scroll_fit_content_height = true
 		new_node.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		new_node.set_line_wrapping_mode(TextEdit.LINE_WRAPPING_BOUNDARY)
+		new_node.caret_blink = true
 		$Foreground/Body.add_child(new_node)
+		new_node.grab_focus()
 
 
 func selection_mode(toggle: bool) -> void:
