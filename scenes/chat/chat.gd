@@ -17,7 +17,13 @@ enum State {PAUSE, UNPAUSE, WAITING_FOR_EDIT, WAITING_FOR_API_RESPONSE,
 			DELETING_MESSAGES}
 var current_state := State.PAUSE
 var waiting_for_edit_mode := false
-var remote_api_active := false
+var remote_api_active := false:
+	set(new_value):
+		if new_value == true:
+			UserMessageBus.sending_allowed = false
+		else:
+			UserMessageBus.sending_allowed = true
+		remote_api_active = new_value
 
 func _ready():
 	chat_tree.participants_changed.connect(_on_participants_changed)

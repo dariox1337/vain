@@ -176,7 +176,10 @@ func _on_http_request_completed(result, response_code, _headers, body) -> void:
 	if response_code > 400:
 		status = APIResult.ERROR
 		if response:
-			message = str(response_code) + " " + response
+			if response.has("error"):
+				message = str(response_code) + " " + str(response["error"])
+			else:
+				message = str(response_code) + " " + str(response)
 		else:
 			message = str(response_code)
 	elif response.has("error"):

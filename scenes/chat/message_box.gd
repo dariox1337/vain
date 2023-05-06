@@ -62,6 +62,8 @@ func _on_next_button_pressed() -> void:
 	chat_node = new_item
 	branch_changed.emit(self)
 	set_message(chat_node)
+	if chat_node.participant.api == "User":
+		_on_edit_pressed()
 
 ## Handler for "swipe left" signal
 ## It never generates new replies, but only wraps to the end.
