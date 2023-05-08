@@ -1,6 +1,7 @@
 class_name APIConfig extends Resource
 
-signal api_connected()
+signal api_connected
+signal streaming_event(api_result: APIResult)
 
 @export var name : String = "Kobold"
 @export var config_scene : String = "res://apis/kobold_config.tscn"

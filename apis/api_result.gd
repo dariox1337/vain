@@ -1,6 +1,6 @@
 class_name APIResult extends Resource
 
-enum {OK, ERROR}
+enum {OK, STREAM, STREAM_ENDED, ERROR}
 
 var status: int
 var message: String

@@ -41,11 +41,14 @@ func new_preset(key : String) -> KoboldConfigPreset:
 
 
 func get_preset_properties() -> Array[String]:
-	return ["url", "max_context_length", "max_length", "rep_pen",
+	var global = super.get_preset_properties()
+	var local = ["url", "max_context_length", "max_length", "rep_pen",
 			"rep_pen_range", "rep_pen_slope", "temperature", "tfs",
 			"top_a", "top_k", "top_p", "multigeneration", "keep_examples",
 			"single_line", "use_story", "use_world_info", "sampler_order",
 			"kobold_memory", "authors_note"]
+	local.append_array(global)
+	return local
 
 
 func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,

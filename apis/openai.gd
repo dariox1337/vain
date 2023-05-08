@@ -1,11 +1,14 @@
 class_name OpenAIConfig extends APIConfig
 
 signal result_ready
+
 var _http_request : HTTPRequest
+var _httpsse_client : HTTPSSEClient
 var final_result := {
 	"status" : OK,
 	"message" : "",
 }
+
 var openai_name_regex : RegEx
 
 
@@ -21,7 +24,10 @@ func adopt_children() -> Array[Node]:
 	_http_request = HTTPRequest.new()
 	_http_request.name = "OpenAI_HTTPRequest"
 	_http_request.request_completed.connect(_on_http_request_completed)
-	return [_http_request]
+	_httpsse_client = HTTPSSEClient.new()
+	_httpsse_client.name = "OpenAI_HTTPSSEClient"
+	_httpsse_client.new_sse_event.connect(_on_sse_event)
+	return [_http_request, _httpsse_client]
 
 
 func new_preset(key : String) -> OpenAIConfigPreset:
@@ -33,9 +39,12 @@ func new_preset(key : String) -> OpenAIConfigPreset:
 
 
 func get_preset_properties() -> Array[String]:
-	return ["oai_key", "url", "model", "context_length", "response_length",
-			"temperature", "frequency_penalty", "presence_penalty", 
-			"keep_examples", "positional_prompts"]
+	var global = super.get_preset_properties()
+	var local = ["oai_key", "url", "model", "context_length", "response_length",
+				"temperature", "frequency_penalty", "presence_penalty", 
+				"keep_examples", "positional_prompts"]
+	local.append(global)
+	return local
 
 
 func connect_to_api(preset: String) -> void:
@@ -139,6 +148,7 @@ func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 	data["temperature"] = preset.temperature
 	data["frequency_penalty"] = preset.frequency_penalty
 	data["presence_penalty"] = preset.presence_penalty
+	data["stream"] = preset.stream
 
 	var json_data = JSON.stringify(data, "  ")
 	Logger.logg(json_data, Logger.INFO)
@@ -147,14 +157,21 @@ func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 	var headers := PackedStringArray([
 		"Content-Type: application/json",
 		"Authorization: Bearer " + preset.oai_key])
-
 	var url = preset.url.path_join("chat/completions")
 	Logger.logg("Sending request to: %s" % url, Logger.INFO)
-	_http_request.cancel_request()
-	var error := _http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
-	if error != OK:
-		Logger.logg("An error occurred in the HTTP request.", Logger.ERROR)
-		return APIResult.new(APIResult.ERROR, "An error occurred in the HTTP request.")
+
+	if preset.stream:
+		var error = _httpsse_client.get_events_from(url, headers, json_data)
+		if error == OK:
+			return APIResult.new(APIResult.STREAM, "...")
+		else:
+			return APIResult.new(APIResult.ERROR, "Could not iniate streaming.")
+	else:
+		_http_request.cancel_request()
+		var error := _http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
+		if error != OK:
+			Logger.logg("An error occurred in the HTTP request.", Logger.ERROR)
+			return APIResult.new(APIResult.ERROR, "An error occurred in the HTTP request.")
 	await result_ready
 	return APIResult.new(final_result["status"], final_result["message"])
 
@@ -238,3 +255,26 @@ func convert_name(chara_name: String) -> String:
 	# The name field can contain only a-z, A-Z, 0-9, and underscores.
 	var filtered_name := openai_name_regex.sub(chara_name, "_", true)
 	return filtered_name.left(64)
+
+
+func _on_sse_event(event) -> void:
+	if event['data'] == '[DONE]\n':
+		var res := APIResult.new(APIResult.STREAM_ENDED, "")
+		_httpsse_client.close_open_connection()
+		streaming_event.emit(res)
+		return
+
+	var json := JSON.new()
+	var err := json.parse(event['data'])
+	if err != OK:
+		Logger.logg("JSON Parse Error: %s in %s at line %s" %\
+					[json.get_error_message(), event['data'], json.get_error_line()],
+					Logger.ERROR)
+	var parsed = json.data
+	if typeof(parsed) == TYPE_DICTIONARY and parsed.has("choices"):
+		parsed = parsed['choices'][0]['delta']
+		if parsed.has("content"):
+			var res := APIResult.new(APIResult.STREAM, parsed["content"])
+			streaming_event.emit(res)
+	else:
+		Logger.logg("Unknown message %s" % parsed, Logger.WARN)

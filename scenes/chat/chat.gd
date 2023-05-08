@@ -12,10 +12,14 @@ var participants : Array[ChatParticipant]
 var current_participant : ChatParticipant
 var current_node: ChatTreeNode = null
 var message_queue := []
-enum State {PAUSE, UNPAUSE, WAITING_FOR_EDIT, WAITING_FOR_API_RESPONSE,
-			REBUILDING_LOG_BACKWARDS, REBUILDING_LOG_FORWARD, SETTING_UP_FIRST_MESSAGE,
-			DELETING_MESSAGES}
-var current_state := State.PAUSE
+enum State {PAUSE, UNPAUSE, WAITING_FOR_EDIT, WAITING_FOR_API_RESPONSE, 
+			STREAMING, REBUILDING_LOG_BACKWARDS, REBUILDING_LOG_FORWARD,
+			SETTING_UP_FIRST_MESSAGE, DELETING_MESSAGES}
+var current_state := State.PAUSE:
+	set(new_state):
+		if new_state == State.PAUSE:
+			UserMessageBus.sending_allowed = true
+		current_state = new_state
 var waiting_for_edit_mode := false
 var remote_api_active := false:
 	set(new_value):
@@ -145,9 +149,8 @@ func _process(_delta):
 
 
 func _on_participants_changed() -> void:
-	# Spawn nodes needed by participant-used apis.
-	# But keep it at one instance per api if there are multiple characters using the same api
 	if participants:
+		# Connect to participant signals
 		for part in participants:
 			var callback = _on_participant_api_changed
 			callback = callback.bind(part)
@@ -155,7 +158,10 @@ func _on_participants_changed() -> void:
 				part.api_changed.connect(callback)
 			if not part.is_connected("wait_state_entered", _on_wait_state_entered):
 				part.wait_state_entered.connect(_on_wait_state_entered)
+			if not part.is_connected("streaming_message_event", _on_streaming_message_event):
+				part.streaming_message_event.connect(_on_streaming_message_event)
 			_on_participant_api_changed(part)
+		# Set the sustitution for {{user}}
 		var user := Utils.get_chara_by_uid("000000000000000-aaaaaaaa")
 		if user:
 			chat_tree.chat_substitutions["{{user}}"] = user.name
@@ -181,6 +187,8 @@ func _on_participant_api_changed(part: ChatParticipant) -> void:
 	# If set preset doesn't exist, switch to Default
 	if not apis.list[part.api].presets.has(part.preset):
 		part.preset = "Default"
+	# Spawn nodes needed by participant-used apis.
+	# But keep it at one instance per api if there are multiple characters using the same api
 	if part.api not in used_apis:
 		used_apis.append(part.api)
 		spawn_api_nodes(part.api)
@@ -191,17 +199,27 @@ func _on_wait_state_entered(truefalse: bool) -> void:
 	$%UserInput.wait_indicator(truefalse)
 
 
-func _on_message_received(part: ChatParticipant, result: APIResult, parent: ChatTreeNode) -> void:
-	if result.status != APIResult.OK:
+func _on_message_received(part: ChatParticipant, result: APIResult,
+							parent: ChatTreeNode) -> void:
+	if result.status == APIResult.ERROR:
 		Logger.logg("%s encountered an error." % part.api, Logger.ERROR)
 		$WarningDialog.dialog_text = "Encountered an API error: %s" % result.message
 		$WarningDialog.popup_centered()
 		$WarningDialog.show()
 		current_state = State.PAUSE
 		return
-	if result.message == "":
-		Logger.logg("Received an empty message from participant %s. Discarding." % part.chara.name,
-					Logger.INFO)
+	elif result.status == APIResult.STREAM:
+		if parent == current_node:
+			current_node = new_message(part, result.message)
+			current_state = State.STREAMING
+		elif current_state == State.WAITING_FOR_EDIT and parent == current_node.get_parent():
+			current_state = State.STREAMING
+		else: 
+			Logger.logg("Received a streaming message for a wrong chat branch.", Logger.ERROR)
+		return
+	elif result.message == "":
+		Logger.logg("Received an empty message from participant %s. Discarding." %\
+					part.chara.name, Logger.INFO)
 		return
 	message_queue.push_back({"participant": part, "message": result.message, "parent": parent})
 
@@ -211,6 +229,25 @@ func _on_warning_dialog_confirmed():
 	if not remote_api_active and current_node != null and participants != []:
 		current_participant.gen_message(current_node, chat_tree, _on_message_received)
 	current_state = State.WAITING_FOR_API_RESPONSE
+
+
+func _on_streaming_message_event(api_result: APIResult) -> void:
+	if current_state != State.STREAMING:
+		Logger.logg("Received a streaming message while not in streaming mode.", Logger.ERROR)
+		return
+	match api_result.status:
+		APIResult.STREAM:
+			# Remove placeholder
+			if current_node.message == "...":
+				current_node.message = ""
+			current_node.message += api_result.message
+		APIResult.STREAM_ENDED:
+			chat_tree.save()
+			current_participant = get_next_participant(current_participant)
+			current_participant.gen_message(current_node, chat_tree, _on_message_received)
+			current_state = State.WAITING_FOR_API_RESPONSE
+		_:
+			Logger.logg("Received a streaming message that's not a stream.", Logger.ERROR)
 
 
 ## This functions generates a new ChatTreeNode given a chat participant and a message
@@ -320,7 +357,8 @@ func _on_user_input_regeneration_requested() -> void:
 	else:
 		current_node.message = "..."
 		current_participant = current_node.participant
-		current_participant.gen_message(current_node.get_parent(), chat_tree, _on_message_received)
+		current_participant.gen_message(current_node.get_parent(), chat_tree,
+										_on_message_received)
 		current_state = State.WAITING_FOR_EDIT
 
 

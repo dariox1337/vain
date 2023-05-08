@@ -53,7 +53,8 @@ Save and restart the game."
 				warning.show()
 				var code = socket.get_close_code()
 				var reason = socket.get_close_reason()
-				Logger.logg("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1], Logger.ERROR)
+				Logger.logg("WebSocket closed with code: %d, reason %s. Clean: %s" %\
+							[code, reason, code != -1], Logger.ERROR)
 				set_process(false) # Stop processing.
 
 ## This function sends a message with unique id over websocket to Python
@@ -67,8 +68,9 @@ func eval(python_code : String) -> String:
 	# return result as a coroutine
 	return await _fetch_result(id)
 
-## This funtion actually fetches the result when it's available, then erases it from the dictionary,
-## and sends back to the original caller of PythonBridge.eval()
+## This funtion actually fetches the result when it's available, 
+## then erases it from the dictionary, and sends back to the original caller of
+## PythonBridge.eval()
 func _fetch_result(id: String) -> String:
 	while not results.has(id):
 		await self.result_ready

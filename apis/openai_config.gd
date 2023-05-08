@@ -41,6 +41,7 @@ func _ready() -> void:
 	
 	# Initialize examples config
 	$%Examples.set_pressed_no_signal(preset.keep_examples)
+	$%Streaming.set_pressed_no_signal(preset.stream)
 
 	# Initialize API key and url
 	api_key_edit.text = preset.oai_key
@@ -98,3 +99,7 @@ func _on_presence_penalty_changed(value : float) -> void:
 
 func _on_examples_toggled(button_pressed : bool) -> void:
 	preset.keep_examples = button_pressed
+
+
+func _on_streaming_toggled(button_pressed : bool) -> void:
+	preset.stream = button_pressed

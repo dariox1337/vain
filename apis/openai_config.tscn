@@ -50,6 +50,11 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="Streaming" type="CheckBox" parent="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Streaming"
+
 [node name="Examples" type="CheckBox" parent="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -80,7 +85,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 placeholder_text = "sk-xxxxxxxxxx"
-max_length = 48
+max_length = 52
 
 [node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf"]
 layout_mode = 2
@@ -188,6 +193,7 @@ size_flags_horizontal = 3
 text = "Prompt"
 
 [connection signal="item_selected" from="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer/ModelMenu" to="." method="_on_model_menu_item_selected"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer/Streaming" to="." method="_on_streaming_toggled"]
 [connection signal="toggled" from="MarginContainer/VBoxContainer/ModelConfMargin/ModelConf/HBoxContainer/Examples" to="." method="_on_examples_toggled"]
 [connection signal="text_changed" from="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer/HBoxContainer/ApiKeyEdit" to="." method="_on_api_key_edit_text_changed"]
 [connection signal="text_changed" from="MarginContainer/VBoxContainer/ApiConfMargin/ApiConf/MarginContainer2/HBoxContainer2/AddressEdit" to="." method="_on_address_edit_text_changed"]

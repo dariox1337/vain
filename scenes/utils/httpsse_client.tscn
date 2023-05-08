@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://2oj571pg7imm"]
+
+[ext_resource type="Script" path="res://scenes/utils/httpsse_client.gd" id="1_jqxn7"]
+
+[node name="httpsse_client" type="Node"]
+script = ExtResource("1_jqxn7")

@@ -68,7 +68,10 @@ text = "Cancel"
 [node name="APINodes" type="Node" parent="."]
 
 [node name="WarningDialog" type="ConfirmationDialog" parent="."]
+size = Vector2i(500, 100)
+min_size = Vector2i(500, 70)
 ok_button_text = "Retry"
+dialog_autowrap = true
 cancel_button_text = "Pause"
 
 [connection signal="deletion_mode_activated" from="MarginContainer/Foreground/UserInput" to="." method="_on_user_input_deletion_mode_activated"]
