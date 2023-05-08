@@ -3,7 +3,6 @@ class_name HTTPSSEClient extends Node
 signal new_sse_event(event: Dictionary)
 
 var http_client := HTTPClient.new()
-
 var url_after_domain: String
 var is_requested := false
 var user_headers: PackedStringArray
@@ -30,12 +29,6 @@ func get_events_from(url: String, headers: PackedStringArray, data : String,
 		return ERR_INVALID_PARAMETER
 
 
-func close_open_connection() -> void:
-	is_requested = false
-	if http_client:
-		http_client.close()
-
-
 func _process(_delta):
 	http_client.poll()
 	var http_client_status = http_client.get_status()
@@ -45,7 +38,7 @@ func _process(_delta):
 				var headers = user_headers
 				headers.append("Accept: text/event-stream")
 				var _err = http_client.request_raw(HTTPClient.METHOD_POST, url_after_domain, 
-												headers, user_data.to_utf8_buffer())
+													headers, user_data.to_utf8_buffer())
 				is_requested = true
 		HTTPClient.STATUS_BODY:
 			var chunk = http_client.read_response_body_chunk()
@@ -61,7 +54,8 @@ func parse_message(body : String) -> void:
 	var current_event := {'id': '', 'event': '', 'data': ''}
 	var event_dispatched := false
 	for line in body.split("\n"):
-		if line == '':
+		if line == '': # an empty line is a signal to fire an event
+			# Fire only meaningful events
 			if current_event != {'id': '', 'event': '', 'data': ''}:
 				new_sse_event.emit(current_event.duplicate())
 				event_dispatched = true
@@ -83,12 +77,19 @@ func parse_message(body : String) -> void:
 			"data" : current_event['data'] += value + "\n"
 			"id" : current_event['id'] = value
 			# TODO: parse retry field as described in the specification
+	# If no event was ever dispatched, this was probably not an SSE message but an error
 	if not event_dispatched:
 		current_event = {'id': '', 'event': '', 'data': ''}
 		current_event['event'] = "ERROR"
 		current_event['data'] = "Found no server-sent event in " + body
 		new_sse_event.emit(current_event)
 		close_open_connection()
+
+
+func close_open_connection() -> void:
+	is_requested = false
+	if http_client:
+		http_client.close()
 
 
 func _exit_tree():
