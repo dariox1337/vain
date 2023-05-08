@@ -44,8 +44,8 @@ func _process(_delta):
 			if not is_requested:
 				var headers = user_headers
 				headers.append("Accept: text/event-stream")
-				var _err = http_client.request(HTTPClient.METHOD_POST, url_after_domain, 
-												headers, user_data)
+				var _err = http_client.request_raw(HTTPClient.METHOD_POST, url_after_domain, 
+												headers, user_data.to_utf8_buffer())
 				is_requested = true
 		HTTPClient.STATUS_BODY:
 			var chunk = http_client.read_response_body_chunk()
@@ -67,7 +67,7 @@ func parse_message(body : String) -> void:
 				event_dispatched = true
 			current_event = {'id': '', 'event': '', 'data': ''}
 			continue
-		if line.substr(0, 1) == ':':
+		if line.left(1) == ':':
 			continue # skip because it's a comment
 		var idx = line.find(':')
 		var field = ''

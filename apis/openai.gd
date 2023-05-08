@@ -165,15 +165,15 @@ func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 		if error == OK:
 			return APIResult.new(APIResult.STREAM, "...")
 		else:
-			return APIResult.new(APIResult.ERROR, "Could not iniate streaming.")
+			return APIResult.new(APIResult.ERROR, "Could not initiate streaming.")
 	else:
 		_http_request.cancel_request()
 		var error := _http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
 		if error != OK:
 			Logger.logg("An error occurred in the HTTP request.", Logger.ERROR)
 			return APIResult.new(APIResult.ERROR, "An error occurred in the HTTP request.")
-	await result_ready
-	return APIResult.new(final_result["status"], final_result["message"])
+		await result_ready
+		return APIResult.new(final_result["status"], final_result["message"])
 
 
 func _on_http_request_completed(result, response_code, _headers, body) -> void:
