@@ -225,10 +225,18 @@ func _on_message_received(part: ChatParticipant, result: APIResult,
 
 
 func _on_warning_dialog_confirmed():
-	$%UserInput.pause(false)
 	if not remote_api_active and current_node != null and participants != []:
-		current_participant.gen_message(current_node, chat_tree, _on_message_received)
-	current_state = State.WAITING_FOR_API_RESPONSE
+		# If current node is empty, it means the error happened when generating a choice.
+		# Therefore, regenerate the same node
+		if current_node.message == "...":
+			current_participant.gen_message(current_node.get_parent(), chat_tree,
+											_on_message_received)
+			current_state = State.WAITING_FOR_EDIT
+		# Else generate next message
+		else:
+			current_participant.gen_message(current_node, chat_tree, _on_message_received)
+			current_state = State.WAITING_FOR_API_RESPONSE
+		$%UserInput.pause(false)
 
 
 func _on_streaming_message_event(api_result: APIResult) -> void:
@@ -246,6 +254,12 @@ func _on_streaming_message_event(api_result: APIResult) -> void:
 			current_participant = get_next_participant(current_participant)
 			current_participant.gen_message(current_node, chat_tree, _on_message_received)
 			current_state = State.WAITING_FOR_API_RESPONSE
+		APIResult.ERROR:
+			Logger.logg("Streaming error: %s" % api_result.message, Logger.ERROR)
+			$WarningDialog.dialog_text = "Streaming error.\n%s" % api_result.message
+			$WarningDialog.popup_centered()
+			$WarningDialog.show()
+			current_state = State.PAUSE
 		_:
 			Logger.logg("Received a streaming message that's not a stream.", Logger.ERROR)
 

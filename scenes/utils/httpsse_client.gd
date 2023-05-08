@@ -58,11 +58,13 @@ func _process(_delta):
 ## Parse message as described in the specification
 ## https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
 func parse_message(body : String) -> void:
-	var current_event = {'id': '', 'event': '', 'data': ''}
+	var current_event := {'id': '', 'event': '', 'data': ''}
+	var event_dispatched := false
 	for line in body.split("\n"):
 		if line == '':
 			if current_event != {'id': '', 'event': '', 'data': ''}:
 				new_sse_event.emit(current_event.duplicate())
+				event_dispatched = true
 			current_event = {'id': '', 'event': '', 'data': ''}
 			continue
 		if line.substr(0, 1) == ':':
@@ -81,6 +83,12 @@ func parse_message(body : String) -> void:
 			"data" : current_event['data'] += value + "\n"
 			"id" : current_event['id'] = value
 			# TODO: parse retry field as described in the specification
+	if not event_dispatched:
+		current_event = {'id': '', 'event': '', 'data': ''}
+		current_event['event'] = "ERROR"
+		current_event['data'] = "Found no server-sent event in " + body
+		new_sse_event.emit(current_event)
+		close_open_connection()
 
 
 func _exit_tree():

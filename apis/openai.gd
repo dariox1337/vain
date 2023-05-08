@@ -258,6 +258,11 @@ func convert_name(chara_name: String) -> String:
 
 
 func _on_sse_event(event) -> void:
+	if event['event'] == "ERROR":
+		var res := APIResult.new(APIResult.ERROR, event['data'])
+		streaming_event.emit(res)
+		return
+
 	if event['data'] == '[DONE]\n':
 		var res := APIResult.new(APIResult.STREAM_ENDED, "")
 		_httpsse_client.close_open_connection()
