@@ -66,6 +66,11 @@ func gen_message(_parent: ChatTreeNode, _part: ChatParticipant, _tree: ChatTree,
 	return APIResult.done(APIResult.STREAM_ENDED, msg_uid, "")
 
 
+## Stop any current generation.
+func stop_generation() -> void:
+	pass
+
+
 func parse_examples(examples: String, user_name: String, chara_name: String) -> Array:
 	var res := []
 	var chats := example_chats_regex.search_all(examples)

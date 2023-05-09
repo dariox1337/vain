@@ -21,6 +21,13 @@ var current_state := State.PAUSE:
 		match current_state:
 			State.PAUSE:
 				$%UserInput.pause(true)
+				$%UserInput.wait_indicator(false)
+				if current_participant:
+					current_participant.stop_generation()
+				for key in message_queue.keys():
+					if message_queue[key].message == "":
+						message_queue[key].delete()
+					message_queue.erase(key)
 			_:
 				$%UserInput.pause(false)
 
@@ -166,7 +173,6 @@ func _on_message_received(part: ChatParticipant, result: APIResult,
 							parent: ChatTreeNode) -> void:
 	match result.status:
 		APIResult.ERROR:
-			$%UserInput.wait_indicator(false)
 			Logger.logg("%s error: %s" % [part.api, result.message], Logger.ERROR)
 			$WarningDialog.dialog_text = "%s error: %s" % [part.api, result.message]
 			$WarningDialog.popup_centered()
@@ -215,10 +221,6 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 				current_participant = get_next_participant(current_participant)
 				request_new_message(current_node)
 		APIResult.ERROR:
-			$%UserInput.wait_indicator(false)
-			if node.message == "":
-				node.delete()
-			message_queue.erase(api_result.msg_uid)
 			Logger.logg("Streaming error: %s" % api_result.message, Logger.ERROR)
 			$WarningDialog.dialog_text = "Streaming error.\n%s" % api_result.message
 			$WarningDialog.popup_centered()

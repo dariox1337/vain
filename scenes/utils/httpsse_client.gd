@@ -10,7 +10,7 @@ var user_data: String
 var domain_regex: RegEx
 
 
-func _init():
+func _init() -> void:
 	# Regex that separates domain from everything after in an url like https://example.com/sse
 	domain_regex = RegEx.create_from_string("(\\w+://.+?)(/.*)")
 
@@ -29,7 +29,11 @@ func get_events_from(url: String, headers: PackedStringArray, data : String,
 		return ERR_INVALID_PARAMETER
 
 
-func _process(_delta):
+func cancel_request() -> void:
+	close_open_connection()
+
+
+func _process(_delta) -> void:
 	http_client.poll()
 	var http_client_status = http_client.get_status()
 	match http_client_status:

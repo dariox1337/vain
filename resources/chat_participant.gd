@@ -40,6 +40,11 @@ func _on_streaming_event(api_result: APIResult) -> void:
 	streaming_message_event.emit(api_result, self)
 
 
+func stop_generation() -> void:
+	apis.list[api].stop_generation()
+	pass
+
+
 func to_dict() -> Dictionary:
 	var dict = {
 		"uid" : uid,

@@ -63,6 +63,10 @@ func _on_api_connected(_result, response_code, headers, body) -> void:
 		Logger.logg(d["id"], Logger.INFO)
 
 
+func stop_generation() -> void:
+	_http_request.cancel_request()
+	_httpsse_client.cancel_request()
+
 func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 				preset_key: String, msg_uid: String) -> APIResult:
 	var preset: OpenAIConfigPreset = presets[preset_key]
@@ -160,7 +164,6 @@ func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 		if error != OK:
 			return APIResult.new(APIResult.ERROR, msg_uid, "Could not initiate streaming.")
 	else:
-		_http_request.cancel_request()
 		var error := _http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
 		if error != OK:
 			return APIResult.new(APIResult.ERROR, msg_uid, "Could not send a HTTP request.")
