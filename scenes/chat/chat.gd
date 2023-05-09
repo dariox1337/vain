@@ -238,6 +238,8 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 			Logger.logg("Received an unexpected streaming message.", Logger.ERROR)
 	if part.api == "User":
 		$%UserInput.message_accepted() # Clears input field
+	await get_tree().process_frame
+	message_area.scroll_vertical = int(message_area.get_v_scroll_bar().max_value)
 
 
 func _on_warning_dialog_confirmed() -> void:
