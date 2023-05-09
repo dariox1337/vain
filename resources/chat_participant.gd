@@ -1,7 +1,6 @@
 class_name ChatParticipant extends Resource
 
 signal api_changed
-signal wait_state_entered(truefalse)
 signal streaming_message_event(api_result: APIResult)
 
 @export var uid: String:
@@ -26,8 +25,6 @@ var last_msg_uid: String
 
 func gen_message(parent: ChatTreeNode, tree: ChatTree, callback: Callable) -> void:
 	Logger.logg("Waiting for message from %s" % chara.name, Logger.DEBUG)
-	if api != "User":
-		wait_state_entered.emit(true)
 	last_msg_uid = Utils.gen_new_uid()
 	var result : APIResult = await apis.list[api].gen_message(parent, self, tree, 
 																preset, last_msg_uid)
@@ -40,8 +37,6 @@ func _on_streaming_event(api_result: APIResult) -> void:
 	if api_result.msg_uid != last_msg_uid:
 		# This is a message for a different participant
 		return
-	if api_result.status == APIResult.STREAM_ENDED:
-		wait_state_entered.emit(false)
 	streaming_message_event.emit(api_result, self)
 
 
