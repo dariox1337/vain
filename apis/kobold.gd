@@ -4,20 +4,20 @@ class_name KoboldConfig extends APIConfig
 signal config_set
 var _config_http_request : HTTPRequest
 var config_result := false
-
-signal result_ready
 var _prompt_http_request : HTTPRequest
-var final_result := {
-	"status" : OK,
-	"message" : "",
-}
 
 var next_message_regex: RegEx
+var current_preset: KoboldConfigPreset
+var current_message_uid: String
+var data: Dictionary
+
 
 func _init() -> void:
 	name = "Kobold"
 	config_scene = "res://apis/kobold_config.tscn"
 	presets = {"Default": KoboldConfigPreset.new()}
+	# Regex that looks for "name:" at the beginning of a line,
+	# which indicates that a differen character statred talking
 	next_message_regex = RegEx.create_from_string("(?ms)^(.+?)(?=\\n.+?:)")
 	super._init()
 
@@ -51,36 +51,18 @@ func get_preset_properties() -> Array[String]:
 	return local
 
 
+func stop_generation() -> void:
+	_config_http_request.cancel_request()
+	_prompt_http_request.cancel_request()
+
+
 func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 				preset_key: String, msg_uid: String) -> APIResult:
-	var preset : KoboldConfigPreset = presets[preset_key]
-	var full_message := ""
-	while true:
-		_gen_message(chat, full_message, me, tree, preset)
-		await result_ready
-		if final_result["status"] == APIResult.OK:
-			var msg = next_message_regex.search(final_result["message"])
-			if msg:
-				final_result["message"] = msg.strings[0]
-				break
-			elif preset.multigeneration:
-				Logger.logg("Continuing generation.", Logger.INFO)
-				full_message += final_result["message"]
-			else: break
-		else: break
-	if full_message != "":
-		final_result["status"] = APIResult.OK
-		final_result["message"] = full_message + final_result["message"]
-	return APIResult.new(APIResult.STREAM, msg_uid, final_result["message"])
-
-
-func _gen_message(chat: ChatTreeNode, full_message: String, me: ChatParticipant,
-					tree: ChatTree,	preset: KoboldConfigPreset) -> void:
-	var data := {}
+	current_preset = presets[preset_key]
+	current_message_uid = msg_uid
+	data = {}
 
 	var messages: Array = []
-	# If we're doing multi-generation, there might be previous parts here, append them.
-	messages.append(full_message)
 	# Add speaker name to make it clear for the model who should speak
 	messages.append("%s: " % me.chara.name)
 	# Compile message log
@@ -100,63 +82,62 @@ func _gen_message(chat: ChatTreeNode, full_message: String, me: ChatParticipant,
 
 	# Compile memory
 	data["use_memory"] = false
-	if preset.kobold_memory != "":
-		var mem = tree.substitute(me, preset.kobold_memory)
-		set_config({"value" : mem}, "v1/config/memory", preset)
+	if current_preset.kobold_memory != "":
+		var mem = tree.substitute(me, current_preset.kobold_memory)
+		set_config({"value" : mem}, "v1/config/memory", current_preset)
 		await config_set
 		if config_result == true:
 			data["use_memory"] = true
 	
 	# Compile author's note
 	data["use_authors_note"] = false
-	if preset.authors_note != "":
-		var note = tree.substitute(me, preset.authors_note)
-		set_config({"value" : note}, "v1/config/authors_note", preset)
+	if current_preset.authors_note != "":
+		var note = tree.substitute(me, current_preset.authors_note)
+		set_config({"value" : note}, "v1/config/authors_note", current_preset)
 		await config_set
 		if config_result == true:
 			data["use_authors_note"] = true
 
 	# Compile other options
-	data["max_context_length"] = preset.max_context_length - preset.max_length
-	data["max_length"] = preset.max_length
-	data["rep_pen"] = preset.rep_pen
-	data["rep_pen_range"] = preset.rep_pen_range
-	data["rep_pen_slope"] = preset.rep_pen_slope
-	data["temperature"] = preset.temperature
-	data["tfs"] = preset.tfs
-	data["top_a"] = preset.top_a
-	data["top_k"] = preset.top_k
-	data["top_p"] = preset.top_p
-	data["use_story"] = preset.use_story
-	data["use_world_info"] = preset.use_world_info
-	data["sampler_order"] = preset.sampler_order
+	data["max_context_length"] = current_preset.max_context_length - current_preset.max_length
+	data["max_length"] = current_preset.max_length
+	data["rep_pen"] = current_preset.rep_pen
+	data["rep_pen_range"] = current_preset.rep_pen_range
+	data["rep_pen_slope"] = current_preset.rep_pen_slope
+	data["temperature"] = current_preset.temperature
+	data["tfs"] = current_preset.tfs
+	data["top_a"] = current_preset.top_a
+	data["top_k"] = current_preset.top_k
+	data["top_p"] = current_preset.top_p
+	data["use_story"] = current_preset.use_story
+	data["use_world_info"] = current_preset.use_world_info
+	data["sampler_order"] = current_preset.sampler_order
+	return _send_request()
 
+
+func _send_request() -> APIResult:
 	var json_data = JSON.stringify(data, "  ")
 	Logger.logg(json_data, Logger.INFO)
 	json_data = JSON.stringify(data)
 
 	var headers := PackedStringArray(["Content-Type: application/json"])
-	var url = preset.url.path_join("v1/generate")
+	var url = current_preset.url.path_join("v1/generate")
 	Logger.logg("Sending request to: %s" % url, Logger.INFO)
-	if preset.stream:
+	if current_preset.stream:
 		pass
 	else:
 		_prompt_http_request.cancel_request()
-		var error := _prompt_http_request.request(url, headers, HTTPClient.METHOD_POST,
-													json_data)
+		var error := _prompt_http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
 		if error != OK:
-			Logger.logg("An error occurred in the HTTP request.", Logger.ERROR)
-			final_result = {"status" : "Error", "message" : "An error occurred in the HTTP request."}
-			result_ready.emit()
+			return APIResult.new(APIResult.ERROR, current_message_uid, "HTTP request failed.")
+	return APIResult.new(APIResult.STREAM, current_message_uid, "")
 
 
 func _on_prompt_http_request_completed(result, response_code, _headers, body) -> void:
 	if result != 0:
 		var err = http_request_error_message(result)
 		Logger.logg(err, Logger.ERROR)
-		final_result = {"status" : APIResult.ERROR,
-						"message" : err}
-		result_ready.emit()
+		streaming_event.emit(APIResult.new(APIResult.ERROR, current_message_uid, str(err)))
 		return
 	var json := JSON.new()
 	json.parse(body.get_string_from_utf8())
@@ -171,11 +152,18 @@ func _on_prompt_http_request_completed(result, response_code, _headers, body) ->
 		status = APIResult.ERROR
 		message = response
 	else:
-		status = OK
 		message = response["results"][0]["text"]
-		message = message.strip_edges() # strip \n, \t from the beginning and the end
-	final_result = {"status" : status, "message" : str(message)}
-	result_ready.emit()
+		var is_next_msg = next_message_regex.search(message)
+		if is_next_msg:
+			status = APIResult.STREAM_ENDED
+			message = is_next_msg.strings[0]
+		elif current_preset.multigeneration:
+			status = APIResult.STREAM
+			data["prompt"] += message
+			_send_request()
+		else:
+			status = APIResult.STREAM_ENDED
+	streaming_event.emit(APIResult.new(status, current_message_uid, str(message)))
 
 
 func parse_examples(examples: String, user_name: String, chara_name: String) -> Array:

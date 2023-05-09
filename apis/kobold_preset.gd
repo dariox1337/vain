@@ -2,7 +2,7 @@ class_name KoboldConfigPreset extends APIConfigPreset
 
 @export var url : String = "http://127.0.0.1:5000/api"
 @export var max_context_length : int = 2048
-@export var max_length : int = 80
+@export var max_length : int = 40
 @export var rep_pen : float = 1.1
 @export var rep_pen_range : int = 1024
 @export var rep_pen_slope : float = 0.9

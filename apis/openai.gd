@@ -166,7 +166,7 @@ func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 	else:
 		var error := _http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
 		if error != OK:
-			return APIResult.new(APIResult.ERROR, msg_uid, "Could not send a HTTP request.")
+			return APIResult.new(APIResult.ERROR, msg_uid, "HTTP request failed.")
 	
 	return APIResult.new(APIResult.STREAM, msg_uid, "")
 
