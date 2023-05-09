@@ -42,7 +42,6 @@ func _on_streaming_event(api_result: APIResult) -> void:
 
 func stop_generation() -> void:
 	apis.list[api].stop_generation()
-	pass
 
 
 func to_dict() -> Dictionary:

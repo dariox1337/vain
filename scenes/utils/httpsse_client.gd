@@ -35,8 +35,15 @@ func cancel_request() -> void:
 
 func _process(_delta) -> void:
 	http_client.poll()
+	var response_code = http_client.get_response_code()
+	if response_code > 400:
+		send_error("HTTP error: " + str(response_code))
 	var http_client_status = http_client.get_status()
 	match http_client_status:
+		HTTPClient.STATUS_CANT_RESOLVE:
+			send_error("Could not resolve the domain name.")
+		HTTPClient.STATUS_CANT_CONNECT:
+			send_error("Could not connect.")
 		HTTPClient.STATUS_CONNECTED:
 			if not is_requested:
 				var headers = user_headers
@@ -83,10 +90,14 @@ func parse_message(body : String) -> void:
 			field = line
 	# If no event was ever fired, this was probably not an SSE message but an error
 	if not event_fired:
-		current_event = {'id': '', 'event': '', 'data': ''}
-		current_event['event'] = "ERROR"
-		current_event['data'] = "Found no server-sent event in " + body
-		new_sse_event.emit(current_event)
+		send_error("Found no SSE message in " + body)
+
+func send_error(message: String) -> void:
+	var current_event = {'id': '', 'event': '', 'data': ''}
+	current_event['event'] = "ERROR"
+	current_event['data'] = message
+	new_sse_event.emit(current_event)
+	close_open_connection()
 
 
 func close_open_connection() -> void:
