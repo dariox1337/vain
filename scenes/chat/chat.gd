@@ -220,6 +220,8 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 				node.message = ""
 			node.message += api_result.message
 		APIResult.STREAM_ENDED:
+			if node.message == "...":
+				node.message = ""
 			$%UserInput.wait_indicator(false)
 			node.message += api_result.message
 			message_queue.erase(api_result.msg_uid)
