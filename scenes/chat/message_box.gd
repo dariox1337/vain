@@ -19,8 +19,6 @@ func set_message(msg: ChatTreeNode) -> void:
 	var message_body := $%Body/MessageBody
 	user_name.set_text(chat_node.name)
 	message_body.set_text(chat_node.message)
-	if message_body.text == "":
-		hide() # Hide message box if there is no text yet
 	if chat_node.get("participant"):
 		$%Avatar.texture = chat_node.participant.chara.avatar
 	if not chat_node.is_connected("message_edited", _on_node_message_edited):
@@ -43,7 +41,6 @@ func set_message(msg: ChatTreeNode) -> void:
 
 func _on_node_message_edited() -> void:
 	$%Body/MessageBody.set_text(chat_node.message)
-	show() # always show msg box if text was edited.
 
 
 ## Handler for "swipe right" signal

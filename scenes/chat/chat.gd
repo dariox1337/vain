@@ -13,26 +13,12 @@ var current_participant : ChatParticipant
 var current_node: ChatTreeNode = null
 var message_queue := {}
 enum State {PAUSE, UNPAUSE, STREAMING, WAITING_FOR_API_RESPONSE, WAITING_FOR_EDIT,
-			REBUILDING_LOG_BACKWARDS, REBUILDING_LOG_FORWARD,
+			WAITING_FOR_USER, REBUILDING_LOG_BACKWARDS, REBUILDING_LOG_FORWARD,
 			SETTING_UP_FIRST_MESSAGE, DELETING_MESSAGES}
-var current_state := State.PAUSE:
-	set(new_state):
-		current_state = new_state
-		match current_state:
-			State.PAUSE:
-				$%UserInput.pause(true)
-				$%UserInput.wait_indicator(false)
-				if current_participant:
-					current_participant.stop_generation()
-				for key in message_queue.keys():
-					if message_queue[key].message == "":
-						message_queue[key].delete()
-					message_queue.erase(key)
-			_:
-				$%UserInput.pause(false)
+var current_state := State.PAUSE: set = state_change_handling
 
 
-func _ready():
+func _ready() -> void:
 	chat_tree.participants_changed.connect(_on_participants_changed)
 	current_node = chat_tree.root
 	participants = chat_tree.participants
@@ -43,7 +29,22 @@ func _ready():
 		current_state = State.REBUILDING_LOG_FORWARD
 
 
-func _process(_delta):
+func state_change_handling(new_state) -> void:
+	current_state = new_state
+	if current_state == State.PAUSE:
+		$%UserInput.pause(true)
+		$%UserInput.wait_indicator(false)
+		if current_participant:
+			current_participant.stop_generation()
+		for key in message_queue.keys():
+			if message_queue[key].message == "":
+				message_queue[key].delete()
+			message_queue.erase(key)
+	else:
+		$%UserInput.pause(false)
+
+
+func _process(_delta) -> void:
 	match current_state:
 		State.UNPAUSE:
 			if current_node and current_participant:
@@ -179,12 +180,16 @@ func _on_message_received(part: ChatParticipant, result: APIResult,
 			$WarningDialog.show()
 			current_state = State.PAUSE
 		APIResult.STREAM:
-			if parent == current_node:
-				current_node = new_message(part, result.message)
+			if part.api == "User":
+				# Do nothing for user messages because the actual message will be handled
+				# when "streaming" ends.
+				current_state = State.WAITING_FOR_USER
+			elif parent == current_node:
+				current_node = new_message(part, "...")
 				message_queue[result.msg_uid] = current_node
 				current_state = State.STREAMING
 			elif current_state == State.WAITING_FOR_EDIT and parent == current_node.get_parent():
-				current_node.message = result.message
+				#current_node.message = result.message
 				message_queue[result.msg_uid] = current_node
 				current_state = State.STREAMING
 			else: 
@@ -196,20 +201,23 @@ func _on_message_received(part: ChatParticipant, result: APIResult,
 func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -> void:
 	if not message_queue.has(api_result.msg_uid):
 		# Allow injecting user messages when paused
-		if current_state == State.PAUSE and part.api == "User":
+		if (current_state == State.PAUSE or current_state == State.WAITING_FOR_USER)\
+					and part.api == "User":
 			current_participant = part
 			current_node = new_message(part, "")
 			message_queue[api_result.msg_uid] = current_node
 			current_state = State.STREAMING
 		else:
 			if part.api == "User":
-				Logger.logg("Wait for your turn.", Logger.WARN)
+				Logger.logg("Wait for your turn or pause the chat.", Logger.INFO)
 			else:
 				Logger.logg("Received a message with unknown uid.", Logger.ERROR)
 			return
 	var node = message_queue[api_result.msg_uid]
 	match api_result.status:
 		APIResult.STREAM:
+			if node.message == "...":
+				node.message = ""
 			node.message += api_result.message
 		APIResult.STREAM_ENDED:
 			$%UserInput.wait_indicator(false)
@@ -232,7 +240,7 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 		$%UserInput.message_accepted() # Clears input field
 
 
-func _on_warning_dialog_confirmed():
+func _on_warning_dialog_confirmed() -> void:
 	if current_node and current_participant:
 		# If current node is empty, it means the error happened when generating a choice.
 		# Therefore, regenerate the same node

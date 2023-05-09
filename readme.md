@@ -49,7 +49,7 @@ to chat participants `resources/chat_participant.gd` and the first tree node
 The main chat scene `scenes/chat/chat.gd` is a simple state machine that calls chat participants 
 in turns and tells them to generate messages. Every participant has an api associated with it. 
 The participant forwards the request to its api. User input is mostly handled as another api, 
-but there is a special case in chat.gd to let User send responses even during pause.
+aside from small exceptions.
 
 The game starts with `scenes/start.tscn`, then moves on to `scenes/game_scene/game_scene.tscn`
 
