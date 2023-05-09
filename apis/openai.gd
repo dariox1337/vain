@@ -260,6 +260,7 @@ func convert_name(chara_name: String) -> String:
 func _on_sse_event(event) -> void:
 	if event['event'] == "ERROR":
 		var res := APIResult.new(APIResult.ERROR, event['data'])
+		_httpsse_client.close_open_connection()
 		streaming_event.emit(res)
 		return
 

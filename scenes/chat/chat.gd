@@ -17,9 +17,15 @@ enum State {PAUSE, UNPAUSE, WAITING_FOR_EDIT, WAITING_FOR_API_RESPONSE,
 			SETTING_UP_FIRST_MESSAGE, DELETING_MESSAGES}
 var current_state := State.PAUSE:
 	set(new_state):
-		if new_state == State.PAUSE:
-			UserMessageBus.sending_allowed = true
 		current_state = new_state
+		match current_state:
+			State.PAUSE:
+				$%UserInput.pause(true)
+				UserMessageBus.sending_allowed = true
+				if current_participant:
+					current_participant.stop_generation()
+			_:
+				$%UserInput.pause(false)
 var waiting_for_edit_mode := false
 var remote_api_active := false:
 	set(new_value):
@@ -44,7 +50,6 @@ func _ready():
 func _process(_delta):
 	match current_state:
 		State.PAUSE:
-			$%UserInput.pause(true)
 			if message_queue.size() > 0:
 				var queued_message = message_queue.pop_front()
 				if queued_message["parent"] == current_node:
@@ -61,7 +66,6 @@ func _process(_delta):
 					current_participant = queued_message["participant"]
 					current_state = State.UNPAUSE
 		State.UNPAUSE:
-			$%UserInput.pause(false)
 			if not remote_api_active and current_node != null and participants != []:
 				current_participant = get_next_participant(current_participant)
 				current_participant.gen_message(current_node, chat_tree, _on_message_received)
@@ -76,7 +80,6 @@ func _process(_delta):
 					current_node.message = queued_message["message"]
 					chat_tree.save()
 			if current_node.message != "...":
-				$%UserInput.pause(false)
 				current_participant = get_next_participant(current_node.participant)
 				current_participant.gen_message(current_node, chat_tree, _on_message_received)
 				waiting_for_edit_mode = false
@@ -236,7 +239,6 @@ func _on_warning_dialog_confirmed():
 		else:
 			current_participant.gen_message(current_node, chat_tree, _on_message_received)
 			current_state = State.WAITING_FOR_API_RESPONSE
-		$%UserInput.pause(false)
 
 
 func _on_streaming_message_event(api_result: APIResult) -> void:

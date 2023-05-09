@@ -28,7 +28,7 @@ func gen_message(parent: ChatTreeNode, tree: ChatTree, callback: Callable) -> vo
 	if api != "User":
 		wait_state_entered.emit(true)
 	var result : APIResult = await apis.list[api].gen_message(parent, self, tree, preset)
-	if api != "User":
+	if result.status != APIResult.STREAM and api != "User":
 		wait_state_entered.emit(false)
 
 	# Check if the chat still exists before calling the callback
@@ -37,6 +37,8 @@ func gen_message(parent: ChatTreeNode, tree: ChatTree, callback: Callable) -> vo
 
 
 func _on_streaming_event(api_result) -> void:
+	if api_result.status == APIResult.STREAM_ENDED:
+		wait_state_entered.emit(false)
 	streaming_message_event.emit(api_result)
 
 

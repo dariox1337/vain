@@ -52,13 +52,13 @@ func _process(_delta):
 ## https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
 func parse_message(body : String) -> void:
 	var current_event := {'id': '', 'event': '', 'data': ''}
-	var event_dispatched := false
+	var event_fired := false
 	for line in body.split("\n"):
-		if line == '': # an empty line is a signal to fire an event
+		if line == '': # an empty line is the signal to fire an event
 			# Fire only meaningful events
 			if current_event != {'id': '', 'event': '', 'data': ''}:
 				new_sse_event.emit(current_event.duplicate())
-				event_dispatched = true
+				event_fired = true
 			current_event = {'id': '', 'event': '', 'data': ''}
 			continue
 		if line.left(1) == ':':
@@ -70,20 +70,19 @@ func parse_message(body : String) -> void:
 			field = line.substr(0, idx)
 			value = line.substr(idx+1)
 			value = value.trim_prefix(' ')
+			match field:
+				"event" : current_event['event'] = value
+				"data" : current_event['data'] += value + "\n"
+				"id" : current_event['id'] = value
+				# TODO: parse retry field as described in the specification
 		else:
 			field = line
-		match field:
-			"event" : current_event['event'] = value
-			"data" : current_event['data'] += value + "\n"
-			"id" : current_event['id'] = value
-			# TODO: parse retry field as described in the specification
-	# If no event was ever dispatched, this was probably not an SSE message but an error
-	if not event_dispatched:
+	# If no event was ever fired, this was probably not an SSE message but an error
+	if not event_fired:
 		current_event = {'id': '', 'event': '', 'data': ''}
 		current_event['event'] = "ERROR"
 		current_event['data'] = "Found no server-sent event in " + body
 		new_sse_event.emit(current_event)
-		close_open_connection()
 
 
 func close_open_connection() -> void:
