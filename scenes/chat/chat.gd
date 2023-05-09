@@ -24,13 +24,6 @@ var current_state := State.PAUSE:
 				UserMessageBus.sending_allowed = true
 			_:
 				$%UserInput.pause(false)
-var remote_api_active := false:
-	set(new_value):
-		if new_value == true:
-			UserMessageBus.sending_allowed = false
-		else:
-			UserMessageBus.sending_allowed = true
-		remote_api_active = new_value
 
 
 func _ready():
@@ -47,7 +40,7 @@ func _ready():
 func _process(_delta):
 	match current_state:
 		State.UNPAUSE:
-			if not remote_api_active and current_node != null and participants != []:
+			if current_node and current_participant:
 				if message_queue == {} and current_node.message != "...":
 					# This block is called when unpausing needs to call another participant.
 					current_participant = get_next_participant(current_node.participant)
@@ -167,7 +160,6 @@ func _on_participant_api_changed(part: ChatParticipant) -> void:
 
 
 func _on_wait_state_entered(truefalse: bool) -> void:
-	remote_api_active = truefalse
 	$%UserInput.wait_indicator(truefalse)
 
 
@@ -232,7 +224,7 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 
 
 func _on_warning_dialog_confirmed():
-	if not remote_api_active and current_node != null and participants != []:
+	if current_node and current_participant:
 		# If current node is empty, it means the error happened when generating a choice.
 		# Therefore, regenerate the same node
 		if current_node.message == "...":
