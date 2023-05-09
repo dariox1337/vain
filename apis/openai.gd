@@ -4,6 +4,7 @@ var _http_request : HTTPRequest
 var _httpsse_client : HTTPSSEClient
 var current_message_uid : String
 var openai_name_regex : RegEx
+var token_cache := {}
 
 
 func _init() -> void:
@@ -245,9 +246,11 @@ func _on_sse_event(event) -> void:
 func get_number_of_tokens(messages: Array[Dictionary], model: String) -> int:
 	var tokens = 0
 	for message in messages:
-		var res = await PythonBridge.eval('closedai.num_tokens_in_single_message(%s, "%s")'\
-											% [message, model])
-		tokens += int(res)
+		if not token_cache.has(model + message["content"]):
+			var res = await PythonBridge.eval('closedai.num_tokens_in_single_message(%s, "%s")'\
+												% [message, model])
+			token_cache[model + message["content"]] = int(res)
+		tokens += token_cache[model + message["content"]]
 	return int(tokens)
 
 
