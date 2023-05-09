@@ -39,6 +39,10 @@ func wait_indicator(show_indicator: bool) -> void:
 		$%WaitIndicator.hide()
 
 
+func message_accepted() -> void:
+	$%InputBox.clear()
+
+
 func _on_popup_index_pressed(index: int) -> void:
 	match menu[index]:
 		"Delete":

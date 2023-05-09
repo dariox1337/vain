@@ -9,10 +9,8 @@ func _gui_input(event) -> void:
 	if event.is_action_pressed("new_line"):
 		insert_text_at_caret("\n")
 	elif event.is_action_pressed("ui_text_submit"):
-		if UserMessageBus.sending_allowed:
-			UserMessageBus.user_message_typed(get_text())
-			clear()
-			accept_event()
+		UserMessageBus.user_message_typed(get_text())
+		accept_event()
 
 
 func _on_text_changed():

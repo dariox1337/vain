@@ -21,7 +21,6 @@ var current_state := State.PAUSE:
 		match current_state:
 			State.PAUSE:
 				$%UserInput.pause(true)
-				UserMessageBus.sending_allowed = true
 			_:
 				$%UserInput.pause(false)
 
@@ -197,7 +196,10 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 			message_queue[api_result.msg_uid] = current_node
 			current_state = State.STREAMING
 		else:
-			Logger.logg("Received a message with unknown uid.", Logger.ERROR)
+			if part.api == "User":
+				Logger.logg("Wait for your turn.", Logger.WARN)
+			else:
+				Logger.logg("Received a message with unknown uid.", Logger.ERROR)
 			return
 	var node = message_queue[api_result.msg_uid]
 	match api_result.status:
@@ -209,9 +211,9 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 			message_queue.erase(api_result.msg_uid)
 			chat_tree.save()
 			if current_state != State.PAUSE:
+				current_state = State.WAITING_FOR_API_RESPONSE
 				current_participant = get_next_participant(current_participant)
 				request_new_message(current_node)
-				current_state = State.WAITING_FOR_API_RESPONSE
 		APIResult.ERROR:
 			$%UserInput.wait_indicator(false)
 			if node.message == "":
@@ -224,6 +226,8 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 			current_state = State.PAUSE
 		_:
 			Logger.logg("Received an unexpected streaming message.", Logger.ERROR)
+	if part.api == "User":
+		$%UserInput.message_accepted() # Clears input field
 
 
 func _on_warning_dialog_confirmed():
