@@ -52,7 +52,7 @@ func get_preset_properties() -> Array[String]:
 
 
 func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
-				preset_key := "Default") -> APIResult:
+				preset_key: String, msg_uid: String) -> APIResult:
 	var preset : KoboldConfigPreset = presets[preset_key]
 	var full_message := ""
 	while true:
@@ -71,7 +71,7 @@ func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 	if full_message != "":
 		final_result["status"] = APIResult.OK
 		final_result["message"] = full_message + final_result["message"]
-	return APIResult.new(final_result["status"], final_result["message"])
+	return APIResult.new(APIResult.STREAM, msg_uid, final_result["message"])
 
 
 func _gen_message(chat: ChatTreeNode, full_message: String, me: ChatParticipant,
@@ -138,12 +138,16 @@ func _gen_message(chat: ChatTreeNode, full_message: String, me: ChatParticipant,
 	var headers := PackedStringArray(["Content-Type: application/json"])
 	var url = preset.url.path_join("v1/generate")
 	Logger.logg("Sending request to: %s" % url, Logger.INFO)
-	_prompt_http_request.cancel_request()
-	var error := _prompt_http_request.request(url,	headers, HTTPClient.METHOD_POST, json_data)
-	if error != OK:
-		Logger.logg("An error occurred in the HTTP request.", Logger.ERROR)
-		final_result = {"status" : "Error", "message" : "An error occurred in the HTTP request."}
-		result_ready.emit()
+	if preset.stream:
+		pass
+	else:
+		_prompt_http_request.cancel_request()
+		var error := _prompt_http_request.request(url, headers, HTTPClient.METHOD_POST,
+													json_data)
+		if error != OK:
+			Logger.logg("An error occurred in the HTTP request.", Logger.ERROR)
+			final_result = {"status" : "Error", "message" : "An error occurred in the HTTP request."}
+			result_ready.emit()
 
 
 func _on_prompt_http_request_completed(result, response_code, _headers, body) -> void:

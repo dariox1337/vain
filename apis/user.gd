@@ -2,6 +2,7 @@ class_name UserConfig extends APIConfig
 
 signal message_received
 var message: String
+var last_msg_uid: String
 
 
 func _init() -> void:
@@ -20,10 +21,13 @@ func new_preset(key : String) -> UserConfigPreset:
 
 
 func gen_message(_chat: ChatTreeNode, _part: ChatParticipant, _tree: ChatTree,
-				_preset: String) -> APIResult:
-	await self.message_received
-	return APIResult.new(OK, message)
+				_preset: String, msg_uid: String) -> APIResult:
+	message = ""
+	last_msg_uid = msg_uid
+	return APIResult.new(APIResult.STREAM, msg_uid, message)
+
 
 func _on_new_message(new_message: String) -> void:
 	message = new_message
-	self.message_received.emit()
+	var res = APIResult.new(APIResult.STREAM_ENDED, last_msg_uid, message)
+	streaming_event.emit(res)

@@ -60,9 +60,10 @@ func connect_to_api(_preset: String) -> void:
 ## _part is the participant who should wrtie the response.
 ## _tree is the whole tree where API can find chat settings and tree.substitute() (check it)
 ## _preset is the api-specific configuration preset
+## _msg_uid is the message uid, which should be returned in APIResult
 func gen_message(_parent: ChatTreeNode, _part: ChatParticipant, _tree: ChatTree,
-				_preset: String) -> APIResult:
-	return APIResult.done(APIResult.OK, "")
+				_preset: String, msg_uid: String) -> APIResult:
+	return APIResult.done(APIResult.STREAM_ENDED, msg_uid, "")
 
 
 func parse_examples(examples: String, user_name: String, chara_name: String) -> Array:

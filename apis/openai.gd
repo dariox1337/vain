@@ -1,14 +1,8 @@
 class_name OpenAIConfig extends APIConfig
 
-signal result_ready
-
 var _http_request : HTTPRequest
 var _httpsse_client : HTTPSSEClient
-var final_result := {
-	"status" : OK,
-	"message" : "",
-}
-
+var current_message_uid : String
 var openai_name_regex : RegEx
 
 
@@ -70,7 +64,7 @@ func _on_api_connected(_result, response_code, headers, body) -> void:
 
 
 func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
-				preset_key := "Default") -> APIResult:
+				preset_key: String, msg_uid: String) -> APIResult:
 	var preset: OpenAIConfigPreset = presets[preset_key]
 	var pos_prompts: Dictionary = preset.positional_prompts
 	var data := {}
@@ -160,29 +154,25 @@ func gen_message(chat: ChatTreeNode, me: ChatParticipant, tree: ChatTree,
 	var url = preset.url.path_join("chat/completions")
 	Logger.logg("Sending request to: %s" % url, Logger.INFO)
 
+	current_message_uid = msg_uid
 	if preset.stream:
-		var error = _httpsse_client.get_events_from(url, headers, json_data)
-		if error == OK:
-			return APIResult.new(APIResult.STREAM, "...")
-		else:
-			return APIResult.new(APIResult.ERROR, "Could not initiate streaming.")
+		var error := _httpsse_client.get_events_from(url, headers, json_data)
+		if error != OK:
+			return APIResult.new(APIResult.ERROR, msg_uid, "Could not initiate streaming.")
 	else:
 		_http_request.cancel_request()
 		var error := _http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
 		if error != OK:
-			Logger.logg("An error occurred in the HTTP request.", Logger.ERROR)
-			return APIResult.new(APIResult.ERROR, "An error occurred in the HTTP request.")
-		await result_ready
-		return APIResult.new(final_result["status"], final_result["message"])
+			return APIResult.new(APIResult.ERROR, msg_uid, "Could not send a HTTP request.")
+	
+	return APIResult.new(APIResult.STREAM, msg_uid, "")
 
 
 func _on_http_request_completed(result, response_code, _headers, body) -> void:
-	if result != 0:
+	if result != OK:
 		var err = http_request_error_message(result)
 		Logger.logg(err, Logger.ERROR)
-		final_result = {"status" : APIResult.ERROR,
-						"message" : err}
-		result_ready.emit()
+		streaming_event.emit(APIResult.new(APIResult.ERROR, current_message_uid, str(err)))
 		return
 	var json := JSON.new()
 	json.parse(body.get_string_from_utf8())
@@ -193,7 +183,7 @@ func _on_http_request_completed(result, response_code, _headers, body) -> void:
 	if response_code > 400:
 		status = APIResult.ERROR
 		if response:
-			if response.has("error"):
+			if typeof(response) == TYPE_DICTIONARY and response.has("error"):
 				message = str(response_code) + " " + str(response["error"])
 			else:
 				message = str(response_code) + " " + str(response)
@@ -203,10 +193,38 @@ func _on_http_request_completed(result, response_code, _headers, body) -> void:
 		status = APIResult.ERROR
 		message = response["error"]
 	else:
-		status = OK
+		status = APIResult.STREAM_ENDED
 		message = response["choices"][0]["message"]["content"]
-	final_result = {"status" : status, "message" : str(message)}
-	result_ready.emit()
+	streaming_event.emit(APIResult.new(status, current_message_uid, str(message)))
+
+
+func _on_sse_event(event) -> void:
+	if event['event'] == "ERROR":
+		var res := APIResult.new(APIResult.ERROR, current_message_uid, event['data'])
+		_httpsse_client.close_open_connection()
+		streaming_event.emit(res)
+		return
+
+	if event['data'] == '[DONE]\n':
+		var res := APIResult.new(APIResult.STREAM_ENDED, current_message_uid, "")
+		_httpsse_client.close_open_connection()
+		streaming_event.emit(res)
+		return
+
+	var json := JSON.new()
+	var err := json.parse(event['data'])
+	if err != OK:
+		Logger.logg("JSON Parse Error: %s in %s at line %s" %\
+					[json.get_error_message(), event['data'], json.get_error_line()],
+					Logger.ERROR)
+	var parsed = json.data
+	if typeof(parsed) == TYPE_DICTIONARY and parsed.has("choices"):
+		parsed = parsed['choices'][0]['delta']
+		if parsed.has("content"):
+			var res := APIResult.new(APIResult.STREAM, current_message_uid, parsed["content"])
+			streaming_event.emit(res)
+	else:
+		Logger.logg("Unknown message %s" % parsed, Logger.WARN)
 
 
 func get_number_of_tokens(messages: Array[Dictionary], model: String) -> int:
@@ -256,31 +274,3 @@ func convert_name(chara_name: String) -> String:
 	var filtered_name := openai_name_regex.sub(chara_name, "_", true)
 	return filtered_name.left(64)
 
-
-func _on_sse_event(event) -> void:
-	if event['event'] == "ERROR":
-		var res := APIResult.new(APIResult.ERROR, event['data'])
-		_httpsse_client.close_open_connection()
-		streaming_event.emit(res)
-		return
-
-	if event['data'] == '[DONE]\n':
-		var res := APIResult.new(APIResult.STREAM_ENDED, "")
-		_httpsse_client.close_open_connection()
-		streaming_event.emit(res)
-		return
-
-	var json := JSON.new()
-	var err := json.parse(event['data'])
-	if err != OK:
-		Logger.logg("JSON Parse Error: %s in %s at line %s" %\
-					[json.get_error_message(), event['data'], json.get_error_line()],
-					Logger.ERROR)
-	var parsed = json.data
-	if typeof(parsed) == TYPE_DICTIONARY and parsed.has("choices"):
-		parsed = parsed['choices'][0]['delta']
-		if parsed.has("content"):
-			var res := APIResult.new(APIResult.STREAM, parsed["content"])
-			streaming_event.emit(res)
-	else:
-		Logger.logg("Unknown message %s" % parsed, Logger.WARN)

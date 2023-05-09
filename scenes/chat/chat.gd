@@ -11,9 +11,9 @@ var used_apis : Array[String]
 var participants : Array[ChatParticipant]
 var current_participant : ChatParticipant
 var current_node: ChatTreeNode = null
-var message_queue := []
-enum State {PAUSE, UNPAUSE, WAITING_FOR_EDIT, WAITING_FOR_API_RESPONSE, 
-			STREAMING, REBUILDING_LOG_BACKWARDS, REBUILDING_LOG_FORWARD,
+var message_queue := {}
+enum State {PAUSE, UNPAUSE, STREAMING, WAITING_FOR_API_RESPONSE, WAITING_FOR_EDIT,
+			REBUILDING_LOG_BACKWARDS, REBUILDING_LOG_FORWARD,
 			SETTING_UP_FIRST_MESSAGE, DELETING_MESSAGES}
 var current_state := State.PAUSE:
 	set(new_state):
@@ -22,11 +22,8 @@ var current_state := State.PAUSE:
 			State.PAUSE:
 				$%UserInput.pause(true)
 				UserMessageBus.sending_allowed = true
-				if current_participant:
-					current_participant.stop_generation()
 			_:
 				$%UserInput.pause(false)
-var waiting_for_edit_mode := false
 var remote_api_active := false:
 	set(new_value):
 		if new_value == true:
@@ -35,9 +32,9 @@ var remote_api_active := false:
 			UserMessageBus.sending_allowed = true
 		remote_api_active = new_value
 
+
 func _ready():
 	chat_tree.participants_changed.connect(_on_participants_changed)
-	UserMessageBus.new_user_message.connect(_on_new_user_message_received)
 	current_node = chat_tree.root
 	participants = chat_tree.participants
 	if current_node == null:
@@ -49,51 +46,23 @@ func _ready():
 
 func _process(_delta):
 	match current_state:
-		State.PAUSE:
-			if message_queue.size() > 0:
-				var queued_message = message_queue.pop_front()
-				if queued_message["parent"] == current_node:
-					current_node = new_message(queued_message["participant"],
-												queued_message["message"])
-				elif waiting_for_edit_mode and\
-					queued_message["participant"] == current_participant and\
-					queued_message["parent"] == current_node.get_parent():
-					current_node.message = queued_message["message"]
-					waiting_for_edit_mode = false
-				chat_tree.save()
-				# Unpause if it was the user who wrote this message during pause
-				if queued_message["participant"].api == "User":
-					current_participant = queued_message["participant"]
-					current_state = State.UNPAUSE
 		State.UNPAUSE:
 			if not remote_api_active and current_node != null and participants != []:
-				current_participant = get_next_participant(current_participant)
-				current_participant.gen_message(current_node, chat_tree, _on_message_received)
+				if message_queue == {} and current_node.message != "...":
+					# This block is called when unpausing needs to call another participant.
+					current_participant = get_next_participant(current_node.participant)
+					current_participant.gen_message(current_node, chat_tree, _on_message_received)
+				else:
+					# Otherwise, the system must be waiting for the last node to be edited
+					current_state = State.WAITING_FOR_EDIT
+					return
 			current_state = State.WAITING_FOR_API_RESPONSE
 		State.WAITING_FOR_EDIT:
-			waiting_for_edit_mode = true
-			if message_queue.size() > 0:
-				var queued_message = message_queue.pop_front()
-				# Use queued message to edit the current msg box
-				if queued_message["participant"] == current_participant and\
-					queued_message["parent"] == current_node.get_parent():
-					current_node.message = queued_message["message"]
-					chat_tree.save()
+			# This code executes only when User edits their message in a msg box
 			if current_node.message != "...":
 				current_participant = get_next_participant(current_node.participant)
 				current_participant.gen_message(current_node, chat_tree, _on_message_received)
-				waiting_for_edit_mode = false
 				current_state = State.WAITING_FOR_API_RESPONSE
-		State.WAITING_FOR_API_RESPONSE:
-			if message_queue.size() > 0:
-				var queued_message = message_queue.pop_front()
-				# Check that the message isn't stale
-				if queued_message["parent"] == current_node:
-					current_node = new_message(queued_message["participant"],
-												queued_message["message"])
-					chat_tree.save()
-					current_participant = get_next_participant(current_participant)
-					current_participant.gen_message(current_node, chat_tree, _on_message_received)
 		State.REBUILDING_LOG_FORWARD:
 			_display_msg_box(current_node)
 			if current_node.get_child(0):
@@ -171,10 +140,10 @@ func _on_participants_changed() -> void:
 	else:
 		current_participant = null
 	# If root has no children, it means the chat hasn't started yet.
-	# Reset everything using the new list of participants.
+	# Reset everything using the new list of participants
 	# But don't run this code when rebuilding old message log
-	if current_state != State.REBUILDING_LOG_FORWARD and\
-		(chat_tree.root == null or chat_tree.root.get_child(0) == null):
+	#current_state != State.REBUILDING_LOG_FORWARD and\	(
+	if chat_tree.root == null or chat_tree.root.get_child(0) == null:
 		chat_tree.scenario = ""
 		chat_tree.root = null
 		for child in $%Messages.get_children():
@@ -204,27 +173,62 @@ func _on_wait_state_entered(truefalse: bool) -> void:
 
 func _on_message_received(part: ChatParticipant, result: APIResult,
 							parent: ChatTreeNode) -> void:
-	if result.status == APIResult.ERROR:
-		Logger.logg("%s encountered an error." % part.api, Logger.ERROR)
-		$WarningDialog.dialog_text = "Encountered an API error: %s" % result.message
-		$WarningDialog.popup_centered()
-		$WarningDialog.show()
-		current_state = State.PAUSE
-		return
-	elif result.status == APIResult.STREAM:
-		if parent == current_node:
-			current_node = new_message(part, result.message)
+	match result.status:
+		APIResult.ERROR:
+			Logger.logg("%s error: %s" % [part.api, result.message], Logger.ERROR)
+			$WarningDialog.dialog_text = "%s error: %s" % [part.api, result.message]
+			$WarningDialog.popup_centered()
+			$WarningDialog.show()
+			current_state = State.PAUSE
+		APIResult.STREAM:
+			if parent == current_node:
+				current_node = new_message(part, result.message)
+				message_queue[result.msg_uid] = current_node
+				current_state = State.STREAMING
+			elif current_state == State.WAITING_FOR_EDIT and parent == current_node.get_parent():
+				current_node.message = result.message
+				message_queue[result.msg_uid] = current_node
+				current_state = State.STREAMING
+			else: 
+				Logger.logg("Received a message for a wrong chat branch.", Logger.ERROR)
+		_:
+			Logger.logg("Received an unexpected API message %s" % result.status, Logger.ERROR)
+
+
+func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -> void:
+	if not message_queue.has(api_result.msg_uid):
+		# Allow injecting user messages when paused
+		if current_state == State.PAUSE and part.api == "User":
+			current_participant = part
+			current_node = new_message(part, "")
+			message_queue[api_result.msg_uid] = current_node
 			current_state = State.STREAMING
-		elif current_state == State.WAITING_FOR_EDIT and parent == current_node.get_parent():
-			current_state = State.STREAMING
-		else: 
-			Logger.logg("Received a streaming message for a wrong chat branch.", Logger.ERROR)
-		return
-	elif result.message == "":
-		Logger.logg("Received an empty message from participant %s. Discarding." %\
-					part.chara.name, Logger.INFO)
-		return
-	message_queue.push_back({"participant": part, "message": result.message, "parent": parent})
+		else:
+			Logger.logg("Received a message with unknown uid.", Logger.ERROR)
+			return
+	var node = message_queue[api_result.msg_uid]
+	match api_result.status:
+		APIResult.STREAM:
+			node.message += api_result.message
+		APIResult.STREAM_ENDED:
+			node.message += api_result.message
+			message_queue.erase(api_result.msg_uid)
+			chat_tree.save()
+			if current_state != State.PAUSE:
+				current_participant = get_next_participant(current_participant)
+				current_participant.gen_message(current_node, chat_tree, _on_message_received)
+				current_state = State.WAITING_FOR_API_RESPONSE
+		APIResult.ERROR:
+			if node.message == "":
+				node.delete()
+			message_queue.erase(api_result.msg_uid)
+			Logger.logg("Streaming error: %s" % api_result.message, Logger.ERROR)
+			$WarningDialog.dialog_text = "Streaming error.\n%s" % api_result.message
+			$WarningDialog.popup_centered()
+			$WarningDialog.show()
+			current_state = State.PAUSE
+		_:
+			Logger.logg("Received an unexpected streaming message.", Logger.ERROR)
 
 
 func _on_warning_dialog_confirmed():
@@ -239,31 +243,6 @@ func _on_warning_dialog_confirmed():
 		else:
 			current_participant.gen_message(current_node, chat_tree, _on_message_received)
 			current_state = State.WAITING_FOR_API_RESPONSE
-
-
-func _on_streaming_message_event(api_result: APIResult) -> void:
-	if current_state != State.STREAMING:
-		Logger.logg("Received a streaming message while not in streaming mode.", Logger.ERROR)
-		return
-	match api_result.status:
-		APIResult.STREAM:
-			# Remove placeholder
-			if current_node.message == "...":
-				current_node.message = ""
-			current_node.message += api_result.message
-		APIResult.STREAM_ENDED:
-			chat_tree.save()
-			current_participant = get_next_participant(current_participant)
-			current_participant.gen_message(current_node, chat_tree, _on_message_received)
-			current_state = State.WAITING_FOR_API_RESPONSE
-		APIResult.ERROR:
-			Logger.logg("Streaming error: %s" % api_result.message, Logger.ERROR)
-			$WarningDialog.dialog_text = "Streaming error.\n%s" % api_result.message
-			$WarningDialog.popup_centered()
-			$WarningDialog.show()
-			current_state = State.PAUSE
-		_:
-			Logger.logg("Received a streaming message that's not a stream.", Logger.ERROR)
 
 
 ## This functions generates a new ChatTreeNode given a chat participant and a message
@@ -288,8 +267,8 @@ func _display_msg_box(chat_node : ChatTreeNode, on_top := false) -> void:
 	# message boxes can send signals about swipes and selections
 	spawned_message_box.branch_changed.connect(_on_branch_switched)
 	spawned_message_box.selected.connect(_on_msg_box_selected)
-	await get_tree().process_frame
-	message_area.scroll_vertical = int(message_area.get_v_scroll_bar().max_value)
+	#await get_tree().process_frame
+	#message_area.scroll_vertical = int(message_area.get_v_scroll_bar().max_value)
 
 
 ## Handler for MessageBox signals when user swipes
@@ -306,10 +285,11 @@ func _on_branch_switched(msg_box: PanelContainer) -> void:
 	else:
 		current_node = msg_box.chat_node
 		if current_node.message == "...":
-			current_participant = current_node.participant
-			current_participant.gen_message(current_node.get_parent(), chat_tree, 
-											_on_message_received)
 			current_state = State.WAITING_FOR_EDIT
+			current_participant = current_node.participant
+			if current_participant.api != "User":
+				current_participant.gen_message(current_node.get_parent(), chat_tree, 
+												_on_message_received)
 		else:
 			current_state = State.PAUSE
 
@@ -367,27 +347,15 @@ func _on_cancel_deletion_pressed() -> void:
 
 func _on_user_input_regeneration_requested() -> void:
 	if current_node.participant.api == "User":
+		current_state = State.WAITING_FOR_API_RESPONSE
 		current_participant = get_next_participant(current_node.participant)
 		current_participant.gen_message(current_node, chat_tree, _on_message_received)
-		current_state = State.WAITING_FOR_API_RESPONSE
 	else:
 		current_node.message = "..."
+		current_state = State.WAITING_FOR_EDIT
 		current_participant = current_node.participant
 		current_participant.gen_message(current_node.get_parent(), chat_tree,
 										_on_message_received)
-		current_state = State.WAITING_FOR_EDIT
-
-
-# Let user inject messages while paused
-func _on_new_user_message_received(message: String) -> void:
-	if current_state == State.PAUSE and message != "":
-		# Find the first user participant and send the message as that participant
-		for part in participants:
-			if part.api == "User":
-				message_queue.push_back({"participant": part,
-										"message": message,
-										"parent": current_node})
-				break
 
 
 func jump_to_message(node: ChatTreeNode) -> void:
