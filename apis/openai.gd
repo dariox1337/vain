@@ -203,8 +203,20 @@ func _on_http_request_completed(result, response_code, _headers, body) -> void:
 
 func _on_sse_event(event) -> void:
 	if event['event'] == "ERROR":
-		var res := APIResult.new(APIResult.ERROR, current_message_uid, event['data'])
 		_httpsse_client.close_open_connection()
+		var status = APIResult.ERROR
+		var data = event['data']
+		# In case a non-streamed message was received, try to parse the data field
+		var json := JSON.new()
+		var err = json.parse(data)
+		if err == OK:
+			var response = json.get_data()
+			if response.has("choices"):
+				status = APIResult.STREAM_ENDED
+				data = response["choices"][0]["message"]["content"]
+			elif response.has("error"):
+				data = response["error"]
+		var res := APIResult.new(status, current_message_uid, data)
 		streaming_event.emit(res)
 		return
 

@@ -90,7 +90,7 @@ func parse_message(body : String) -> void:
 			field = line
 	# If no event was ever fired, this was probably not an SSE message but an error
 	if not event_fired:
-		send_error("Found no SSE message in " + body)
+		send_error(body)
 
 func send_error(message: String) -> void:
 	var current_event = {'id': '', 'event': '', 'data': ''}
