@@ -42,7 +42,7 @@ func new_preset(key : String) -> KoboldConfigPreset:
 
 func get_preset_properties() -> Array[String]:
 	var global = super.get_preset_properties()
-	var local = ["url", "max_context_length", "max_length", "rep_pen",
+	var local: Array[String] = ["url", "max_context_length", "max_length", "rep_pen",
 			"rep_pen_range", "rep_pen_slope", "temperature", "tfs",
 			"top_a", "top_k", "top_p", "multigeneration", "keep_examples",
 			"single_line", "use_story", "use_world_info", "sampler_order",

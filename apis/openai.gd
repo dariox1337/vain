@@ -34,11 +34,11 @@ func new_preset(key : String) -> OpenAIConfigPreset:
 
 
 func get_preset_properties() -> Array[String]:
-	var global = super.get_preset_properties()
-	var local = ["oai_key", "url", "model", "context_length", "response_length",
+	var global := super.get_preset_properties()
+	var local: Array[String] = ["oai_key", "url", "model", "context_length", "response_length",
 				"temperature", "frequency_penalty", "presence_penalty", 
 				"keep_examples", "positional_prompts"]
-	local.append(global)
+	local.append_array(global)
 	return local
 
 
