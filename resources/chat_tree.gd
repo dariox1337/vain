@@ -34,6 +34,8 @@ func participant_joined(chara : Character, api := "User", preset := "Default") -
 			return null
 	var part = ChatParticipant.new()
 	part.uid = chara.uid
+	if not part.chara:	# This is needed for temporary characters that aren't saved on disk
+		part.chara = chara
 	part.api = api
 	part.preset = preset
 	participants.append(part)

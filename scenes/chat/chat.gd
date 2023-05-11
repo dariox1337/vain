@@ -6,6 +6,7 @@ extends Control
 @onready var apis : APIs = load("user://apis.tres")
 @onready var message_area := $%MessageArea
 @onready var MessageBox := preload("res://scenes/chat/message_box.tscn")
+@onready var classifier := $Classifier
 var chat_tree : ChatTree
 var used_apis : Array[String]
 var participants : Array[ChatParticipant]
@@ -226,6 +227,7 @@ func _on_streaming_message_event(api_result: APIResult, part: ChatParticipant) -
 			node.message += api_result.message
 			message_queue.erase(api_result.msg_uid)
 			chat_tree.save()
+			classifier.classify(node)
 			if current_state != State.PAUSE:
 				current_state = State.WAITING_FOR_API_RESPONSE
 				current_participant = get_next_participant(current_participant)
